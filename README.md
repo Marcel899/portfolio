@@ -40,6 +40,10 @@ Icons are **PNG on purpose**, not WebP: WebP icons failed to render in one
 browser during development and PNG removed the variable. The large screenshots
 in `assets/work/` are still WebP.
 
+Every CSS, JS and icon URL carries a `?v=N` query. **Bump it whenever you
+replace a file in place** — otherwise browsers keep serving the cached copy and
+your change appears not to have happened.
+
 ## Where the content came from
 
 Everything on the page is real and verifiable:

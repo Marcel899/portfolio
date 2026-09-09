@@ -118,7 +118,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 /* ---------- pills / buttons ---------- */
 .dot{
   width:11px; height:11px; border-radius:50%; flex:0 0 auto;
-  background:url("../icons/dot-green.png") center/contain no-repeat;
+  background:url("../icons/dot-green.png?v=24") center/contain no-repeat;
   animation:ping 2.4s var(--ease) infinite;
 }
 @keyframes ping{

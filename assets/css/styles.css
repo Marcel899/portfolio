@@ -609,7 +609,10 @@ a.comm__meta:hover{ color:var(--pc) }
   content:""; position:absolute; inset:0; pointer-events:none;
   background-image:url("../icons/studs.png");
   background-size:12px 12px;
-  opacity:.45;
+  opacity:.5;
+  /* clear the middle so the texture never sits behind the text */
+  -webkit-mask-image:radial-gradient(115% 96% at 50% 50%, transparent 42%, #000 88%);
+  mask-image:radial-gradient(115% 96% at 50% 50%, transparent 42%, #000 88%);
 }
 .cta__in{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center }
 .cta .sec-num{ padding-top:0; margin-bottom:20px }

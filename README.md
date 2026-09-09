@@ -1,5 +1,7 @@
 # Marcel_899 — Portfolio
 
+**Live:** https://marcel899.github.io/portfolio/
+
 One-page portfolio site. Static HTML/CSS/JS, no build step, no dependencies.
 
 ## Run locally
@@ -14,8 +16,15 @@ a stale `styles.css` and the page will look broken.
 
 ## Deploy
 
-Upload the whole folder as-is to any static host (Netlify, Vercel, GitHub Pages,
-Cloudflare Pages). `index.html` must sit at the root.
+Hosted on GitHub Pages from `main` / root — push to `main` and the live site
+updates in about a minute.
+
+```bash
+git add -A && git commit -m "Update" && git push
+```
+
+The folder also drops onto any other static host (Netlify, Vercel, Cloudflare
+Pages) as-is; `index.html` must sit at the root.
 
 ## Structure
 

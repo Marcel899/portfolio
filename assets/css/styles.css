@@ -640,6 +640,11 @@ a.comm__meta:hover{ color:var(--pc) }
   transition:transform .25s var(--ease);
 }
 .way + .way{ border-left:1px solid var(--line) }
+.way__logo{
+  width:30px; height:30px; border-radius:8px; margin-bottom:2px;
+  opacity:.9; transition:opacity .22s var(--ease), transform .25s var(--ease);
+}
+.way:hover .way__logo{ opacity:1; transform:translateY(-1px) scale(1.05) }
 .way__label{
   font-family:var(--ff-m); font-size:10.5px; letter-spacing:.14em;
   text-transform:uppercase; color:var(--muted);

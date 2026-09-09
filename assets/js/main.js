@@ -9,71 +9,116 @@
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------------------------------------------------------
-     Hero meteor shower
+     Hero night sky
+
+     Rendered at 0.6x and upscaled by CSS, which softens it for free and cuts
+     the pixel work. Meteors are one pre-rendered sprite drawn with drawImage
+     rather than a fresh gradient per meteor per frame.
      --------------------------------------------------------- */
   (function () {
     var cv = $('#heroSky');
     if (!cv) return;
     var ctx = cv.getContext('2d');
-    var W = 0, H = 0, stars = [], meteors = [], raf = null, live = false;
-    var DX = -0.36, DY = 0.93;            // fall direction: down, leaning left
+    var bg = document.createElement('canvas'), bx = bg.getContext('2d');
+    var SCALE = 0.5, W = 0, H = 0, meteors = [], raf = null, live = false;
+    var DX = -0.34, DY = 0.94;
+    var ANG = Math.atan2(-DY, -DX);
+    var CA = Math.cos(ANG), SA = Math.sin(ANG);
 
-    function resize() {
-      var r = cv.getBoundingClientRect();
-      W = cv.width  = Math.max(1, Math.round(r.width));
-      H = cv.height = Math.max(1, Math.round(r.height));
-      stars.length = 0;
-      var n = Math.min(220, Math.round(W * H / 7000));
-      for (var i = 0; i < n; i++) {
-        stars.push({ x: Math.random() * W, y: Math.random() * H,
-                     r: Math.random() * 1.1 + 0.25,
-                     a: Math.random() * 0.55 + 0.15,
-                     p: Math.random() * 6.283 });
+    var SPR = (function () {
+      var L = 256, TH = 26, sp = document.createElement('canvas');
+      sp.width = L; sp.height = TH;
+      var c = sp.getContext('2d'), cy = TH / 2, g;
+      c.lineCap = 'round';
+      if ('filter' in c) c.filter = 'blur(1.1px)';   /* baked in, not per frame */
+      g = c.createLinearGradient(0, 0, L, 0);
+      g.addColorStop(0, 'rgba(150,190,255,.18)');
+      g.addColorStop(0.5, 'rgba(120,160,255,.08)');
+      g.addColorStop(1, 'rgba(110,150,255,0)');
+      c.strokeStyle = g; c.lineWidth = TH * 0.62;
+      c.beginPath(); c.moveTo(3, cy); c.lineTo(L - 3, cy); c.stroke();
+      g = c.createLinearGradient(0, 0, L, 0);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.2, 'rgba(206,228,255,.68)');
+      g.addColorStop(0.55, 'rgba(140,182,255,.26)');
+      g.addColorStop(1, 'rgba(110,150,255,0)');
+      c.strokeStyle = g; c.lineWidth = TH * 0.15;
+      c.beginPath(); c.moveTo(3, cy); c.lineTo(L - 3, cy); c.stroke();
+      g = c.createRadialGradient(4, cy, 0, 4, cy, TH * 0.32);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      c.fillStyle = g;
+      c.beginPath(); c.arc(4, cy, TH * 0.32, 0, 6.283); c.fill();
+      return sp;
+    })();
+
+    function paintSky() {
+      bg.width = W; bg.height = H;
+      bx.clearRect(0, 0, W, H);
+      if ('filter' in bx) bx.filter = 'blur(1.5px)'; /* one-off, not per frame */
+      var i, g, cx, cy, r, tint;
+      for (i = 0; i < 9; i++) {
+        cx = Math.random() * W; cy = Math.random() * H * 0.85;
+        r = Math.min(W, H) * (0.2 + Math.random() * 0.42);
+        tint = Math.random() < 0.55 ? '150,190,255' : '96,126,206';
+        g = bx.createRadialGradient(cx, cy, 0, cx, cy, r);
+        g.addColorStop(0, 'rgba(' + tint + ',' + (0.05 + Math.random() * 0.07) + ')');
+        g.addColorStop(1, 'rgba(' + tint + ',0)');
+        bx.fillStyle = g; bx.fillRect(0, 0, W, H);
       }
-      meteors.length = 0;
-      var m = Math.min(42, Math.max(16, Math.round(W / 42)));
-      for (var j = 0; j < m; j++) meteors.push(spawn(true));
+      var n = Math.min(460, Math.round(W * H / 1500));
+      for (i = 0; i < n; i++) {
+        var x = Math.random() * W, y = Math.random() * H;
+        var rr = Math.random() * Math.random() * 1.5 + 0.25;
+        var al = Math.random() * 0.75 + 0.12;
+        if (rr > 0.85) {
+          g = bx.createRadialGradient(x, y, 0, x, y, rr * 6);
+          g.addColorStop(0, 'rgba(214,232,255,' + (al * 0.45) + ')');
+          g.addColorStop(1, 'rgba(214,232,255,0)');
+          bx.fillStyle = g;
+          bx.beginPath(); bx.arc(x, y, rr * 6, 0, 6.283); bx.fill();
+        }
+        bx.globalAlpha = al; bx.fillStyle = '#e8f1ff';
+        bx.beginPath(); bx.arc(x, y, rr, 0, 6.283); bx.fill();
+        bx.globalAlpha = 1;
+      }
     }
 
     function spawn(seed) {
+      var t = Math.random(), far = t < 0.45, mid = !far && t < 0.8;
       return {
-        x: Math.random() * (W + 420) - 60,
-        y: seed ? Math.random() * H : -(Math.random() * 260 + 30),
-        len: 80 + Math.random() * 210,
-        sp: 2.4 + Math.random() * 4.6,
-        a: 0.5 + Math.random() * 0.5,
-        w: Math.random() < 0.26 ? 2.8 : 1.6
+        x: Math.random() * (W + 300) - 50,
+        y: seed ? Math.random() * H : -(Math.random() * 200 + 20),
+        len: far ? 30 + Math.random() * 46 : mid ? 70 + Math.random() * 78 : 120 + Math.random() * 120,
+        sp:  far ? 0.7 + Math.random() * 0.8 : mid ? 1.5 + Math.random() * 1.4 : 2.8 + Math.random() * 2.1,
+        a:   far ? 0.16 + Math.random() * 0.2 : mid ? 0.4 + Math.random() * 0.28 : 0.7 + Math.random() * 0.3,
+        th:  far ? 7 : mid ? 13 : 22
       };
     }
 
-    function draw(ts) {
+    function resize() {
+      var r = cv.getBoundingClientRect();
+      W = cv.width  = Math.max(1, Math.round(r.width  * SCALE));
+      H = cv.height = Math.max(1, Math.round(r.height * SCALE));
+      paintSky();
+      meteors.length = 0;
+      var m = Math.min(40, Math.max(16, Math.round(W / 22)));
+      for (var j = 0; j < m; j++) meteors.push(spawn(true));
+    }
+
+    function draw() {
       ctx.clearRect(0, 0, W, H);
-      for (var i = 0; i < stars.length; i++) {
-        var s = stars[i];
-        ctx.globalAlpha = s.a * (0.65 + 0.35 * Math.sin(ts / 1100 + s.p));
-        ctx.fillStyle = '#dbe7ff';
-        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.283); ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-      ctx.lineCap = 'round';
+      ctx.drawImage(bg, 0, 0);
       for (var j = 0; j < meteors.length; j++) {
         var m = meteors[j];
-        var tx = m.x - DX * m.len, ty = m.y - DY * m.len;
-        var g = ctx.createLinearGradient(m.x, m.y, tx, ty);
-        g.addColorStop(0,    'rgba(255,255,255,' + m.a + ')');
-        g.addColorStop(0.22, 'rgba(196,222,255,' + (m.a * 0.7) + ')');
-        g.addColorStop(0.55, 'rgba(140,182,255,' + (m.a * 0.3) + ')');
-        g.addColorStop(1,    'rgba(110,150,255,0)');
-        ctx.strokeStyle = g; ctx.lineWidth = m.w;
-        ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(tx, ty); ctx.stroke();
-        /* bright head */
+        ctx.setTransform(CA, SA, -SA, CA, m.x, m.y);
         ctx.globalAlpha = m.a;
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath(); ctx.arc(m.x, m.y, m.w * 0.72, 0, 6.283); ctx.fill();
-        ctx.globalAlpha = 1;
+        ctx.drawImage(SPR, 0, -m.th / 2, m.len, m.th);
         m.x += DX * m.sp; m.y += DY * m.sp;
-        if (m.y - m.len > H + 40 || m.x + m.len < -80) meteors[j] = spawn(false);
+        if (m.y - m.len > H + 30 || m.x + m.len < -60) meteors[j] = spawn(false);
       }
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.globalAlpha = 1;
       raf = requestAnimationFrame(draw);
     }
 
@@ -81,13 +126,12 @@
     function stop()  { if (live) { live = false; cancelAnimationFrame(raf); } }
 
     resize();
-    if (reduce) { draw(0); cancelAnimationFrame(raf); return; }   // one static frame
+    if (reduce) { draw(); cancelAnimationFrame(raf); live = false; return; }
 
     var rt;
     window.addEventListener('resize', function () {
-      clearTimeout(rt); rt = setTimeout(function () { resize(); }, 180);
+      clearTimeout(rt); rt = setTimeout(resize, 180);
     });
-    /* don't burn frames once the hero is scrolled past */
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (e) {
         e[0].isIntersecting ? start() : stop();

@@ -144,7 +144,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
     url("../icons/studs.png"),
     linear-gradient(90deg, var(--accent) 0%,
       color-mix(in srgb, var(--accent) 84%, #FFFFFF) 50%, var(--accent) 100%);
-  background-size:13px 13px, 200% 100%;
+  background-size:20px 20px, 200% 100%;
   background-repeat:repeat, repeat;
   background-position:0 0, 0 0;
 }
@@ -608,8 +608,8 @@ a.comm__meta:hover{ color:var(--pc) }
 .cta::after{
   content:""; position:absolute; inset:0; pointer-events:none;
   background-image:url("../icons/studs.png");
-  background-size:12px 12px;
-  opacity:.5;
+  background-size:26px 26px;
+  opacity:1;
   /* clear the middle so the texture never sits behind the text */
   -webkit-mask-image:radial-gradient(115% 96% at 50% 50%, transparent 42%, #000 88%);
   mask-image:radial-gradient(115% 96% at 50% 50%, transparent 42%, #000 88%);

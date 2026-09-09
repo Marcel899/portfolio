@@ -263,7 +263,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 /* =========================================================
    SECTION SHELL
    ========================================================= */
-.section{ padding:clamp(44px,5.5vw,72px) 0; position:relative }
+.section{ padding:clamp(28px,3.4vw,44px) 0; position:relative }
 .section--exp{ background-color:var(--bg-2) }
 
 .sec-head{

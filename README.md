@@ -31,7 +31,7 @@ Pages) as-is; `index.html` must sit at the root.
 ```
 index.html            markup + all copy
 assets/css/styles.css design system and every component
-assets/js/main.js     slider, lightbox, copy-to-clipboard, scroll reveal
+assets/js/main.js     slider, lightbox, copy-to-clipboard, back-to-top
 assets/work/          wiki screenshots (*.webp full size, *-t.webp thumbnails)
 assets/icons/         game, server and profile icons (PNG — see note below)
 ```

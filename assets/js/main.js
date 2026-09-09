@@ -9,21 +9,6 @@
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------------------------------------------------------
-     Scroll reveal
-     --------------------------------------------------------- */
-  var reveals = $$('.reveal');
-  if (reduce || !('IntersectionObserver' in window)) {
-    reveals.forEach(function (el) { el.classList.add('is-in'); });
-  } else {
-    var revObs = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add('is-in'); revObs.unobserve(e.target); }
-      });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
-    reveals.forEach(function (el) { revObs.observe(el); });
-  }
-
-  /* ---------------------------------------------------------
      Project slider
      --------------------------------------------------------- */
   var slider = $('#slider');

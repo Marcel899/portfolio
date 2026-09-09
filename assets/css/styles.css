@@ -768,12 +768,6 @@ a.comm__meta:hover{ color:var(--pc) }
 .lb__close:active,.lb__nav:active{ transform:scale(.93) }
 
 /* =========================================================
-   REVEAL
-   ========================================================= */
-html.js .reveal{ opacity:0; transform:translateY(14px); transition:opacity .7s var(--ease) var(--d,0s), transform .7s var(--ease) var(--d,0s) }
-html.js .reveal.is-in{ opacity:1; transform:none }
-
-/* =========================================================
    RESPONSIVE
    ========================================================= */
 @media (max-width:1080px){
@@ -840,5 +834,4 @@ html.js .reveal.is-in{ opacity:1; transform:none }
 @media (prefers-reduced-motion:reduce){
   html{ scroll-behavior:auto }
   *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important }
-  html.js .reveal{ opacity:1 !important; transform:none !important }
 }

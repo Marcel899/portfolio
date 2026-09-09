@@ -144,7 +144,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
     url("../icons/studs.png"),
     linear-gradient(90deg, var(--accent) 0%,
       color-mix(in srgb, var(--accent) 84%, #FFFFFF) 50%, var(--accent) 100%);
-  background-size:20px 20px, 200% 100%;
+  background-size:14px 14px, 200% 100%;
   background-repeat:repeat, no-repeat;
   background-position:0 0, 0 0;
 }
@@ -176,15 +176,6 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 .hero__bg::after{
   content:""; position:absolute; left:0; right:0; bottom:0; height:1px; background:var(--line);
 }
-.studs{
-  position:absolute; inset:0;
-  background-image:url("../icons/studs.png");
-  background-size:24px 24px;
-  opacity:.28;
-  mask-image:radial-gradient(58% 48% at 50% 32%, #000, transparent 76%);
-  -webkit-mask-image:radial-gradient(58% 48% at 50% 32%, #000, transparent 76%);
-}
-
 .hero__in{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center }
 
 .hero__avatar{
@@ -612,6 +603,13 @@ a.comm__meta:hover{ color:var(--pc) }
 .cta::before{
   content:""; position:absolute; top:0; left:16%; right:16%; height:1px;
   background:linear-gradient(90deg, transparent, rgba(76,141,255,.8), transparent);
+  z-index:2;
+}
+.cta::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:url("../icons/studs.png");
+  background-size:12px 12px;
+  opacity:.32;
 }
 .cta__in{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center }
 .cta .sec-num{ padding-top:0; margin-bottom:20px }

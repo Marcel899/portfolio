@@ -609,8 +609,9 @@ a.comm__meta:hover{ color:var(--pc) }
   position:relative; overflow:hidden;
   border:1px solid var(--line);
   border-radius:clamp(20px,3vw,28px);
+  max-width:760px; margin-inline:auto;
   background:linear-gradient(180deg, #111827 0%, #080B13 100%);
-  padding:clamp(42px,5.2vw,76px) clamp(24px,5vw,56px);
+  padding:clamp(30px,3.6vw,50px) clamp(24px,5vw,56px);
   text-align:center;
 }
 .cta::before{
@@ -632,11 +633,11 @@ a.comm__meta:hover{ color:var(--pc) }
 
 .ways{
   display:grid; grid-template-columns:1fr 1fr;
-  width:100%; max-width:520px; margin-top:32px;
+  width:100%; max-width:520px; margin-top:24px;
 }
 .way{
   display:flex; flex-direction:column; align-items:center; gap:8px;
-  padding:20px 16px; text-align:center; font:inherit;
+  padding:16px 16px; text-align:center; font:inherit;
   transition:transform .25s var(--ease);
 }
 .way + .way{ border-left:1px solid var(--line) }
@@ -667,7 +668,7 @@ a.comm__meta:hover{ color:var(--pc) }
 
 .cta__meta{
   display:flex; flex-wrap:wrap; justify-content:center; gap:14px 44px;
-  margin-top:34px; padding-top:26px;
+  margin-top:24px; padding-top:20px;
   border-top:1px solid var(--line); width:100%; max-width:520px;
 }
 .cta__meta dt{

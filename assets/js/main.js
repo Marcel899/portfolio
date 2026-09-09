@@ -280,6 +280,31 @@
   });
 
   /* ---------------------------------------------------------
+     Back to top
+     --------------------------------------------------------- */
+  var toTop = $('#toTop');
+  if (toTop) {
+    var topTicking = false;
+    function syncTop() {
+      var show = window.scrollY > window.innerHeight * 0.6;
+      if (show && toTop.hidden) toTop.hidden = false;
+      toTop.classList.toggle('is-on', show);
+      if (!show) {
+        clearTimeout(toTop._t);
+        toTop._t = setTimeout(function () { if (!toTop.classList.contains('is-on')) toTop.hidden = true; }, 320);
+      }
+      topTicking = false;
+    }
+    window.addEventListener('scroll', function () {
+      if (!topTicking) { topTicking = true; requestAnimationFrame(syncTop); }
+    }, { passive: true });
+    toTop.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    });
+    syncTop();
+  }
+
+  /* ---------------------------------------------------------
      Copy the Discord handle
      --------------------------------------------------------- */
   function legacyCopy(text, done) {

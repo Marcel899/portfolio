@@ -117,14 +117,14 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 
 /* ---------- pills / buttons ---------- */
 .dot{
-  width:7px; height:7px; border-radius:50%; background:#4C8DFF; flex:0 0 auto;
-  box-shadow:0 0 0 0 rgba(76,141,255,.5);
+  width:11px; height:11px; border-radius:50%; flex:0 0 auto;
+  background:url("../icons/dot-green.png") center/contain no-repeat;
   animation:ping 2.4s var(--ease) infinite;
 }
 @keyframes ping{
-  0%{ box-shadow:0 0 0 0 rgba(76,141,255,.45) }
-  70%{ box-shadow:0 0 0 7px rgba(76,141,255,0) }
-  100%{ box-shadow:0 0 0 0 rgba(76,141,255,0) }
+  0%{ box-shadow:0 0 0 0 rgba(92,200,120,.45) }
+  70%{ box-shadow:0 0 0 8px rgba(92,200,120,0) }
+  100%{ box-shadow:0 0 0 0 rgba(92,200,120,0) }
 }
 
 .btn{
@@ -675,7 +675,22 @@ a.comm__meta:hover{ color:var(--pc) }
   text-transform:uppercase; color:var(--muted); margin-bottom:6px;
 }
 .cta__meta dd{ font-size:14.5px; font-weight:500; color:var(--text) }
+.cta__meta dd.pay{ display:inline-flex; align-items:center; gap:6px }
+.cta__meta dd.pay img{ width:17px; height:17px }
 .cta__meta dd span{ color:var(--muted); font-weight:400 }
+
+/* ---------- back to top ---------- */
+.totop{
+  position:fixed; right:clamp(16px,2.5vw,28px); bottom:clamp(16px,2.5vw,28px);
+  z-index:90; width:48px; height:48px; padding:0; border-radius:14px;
+  opacity:0; transform:translateY(10px);
+  transition:opacity .3s var(--ease), transform .3s cubic-bezier(.34,1.5,.64,1),
+             box-shadow .24s var(--ease);
+}
+.totop.is-on{ opacity:1; transform:translateY(0) }
+.totop.is-on:hover{ transform:translateY(-2px) }
+.totop.is-on:active{ transform:translateY(3px) scale(.985) }
+.totop svg{ width:20px; height:20px }
 
 /* =========================================================
    FOOTER

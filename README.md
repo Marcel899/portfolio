@@ -66,7 +66,7 @@ by editing the `<dd>` values in the project slider in `index.html`.
 | Discord handle | `data-copy` on the `.copy` buttons in `#contact` and the footer |
 | Roblox link | the `Roblox profile` links in `#contact` and the footer |
 | Accent colour | `--accent` in `:root` |
-| Stud texture | `--stud` / `--stud-size` in `:root` (set `--stud: none` to remove) |
+| Stud texture | the `radial-gradient` layer on `.btn--accent`, and `.studs` in the hero |
 | Per-project colours | `--pc` inline on each `.pinfo`, and `COLORS` in `main.js` |
 | Add a project | add a `.ptab`, a `.shot`, and a `.pinfo`, then extend `URLS` + `COLORS` in `main.js` |
 | Add a gallery image | copy a `.tile` block and set `data-src` / `data-title` / `data-cat` / `data-desc` |

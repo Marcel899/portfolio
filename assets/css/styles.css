@@ -132,33 +132,53 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   padding:13px 22px; border-radius:12px;
   font-family:var(--ff-d); font-weight:600; font-size:15px; letter-spacing:-.01em;
   border:1px solid transparent; white-space:nowrap;
-  transition:transform .18s var(--ease), background .22s, border-color .22s, box-shadow .22s;
+  transform:translateY(0);
+  transition:transform .24s cubic-bezier(.34,1.5,.64,1),
+             box-shadow .24s var(--ease), background-color .22s, border-color .22s;
 }
+.btn:hover{ transform:translateY(-2px) }
+.btn:active{ transform:translateY(2px) scale(.99); transition-duration:.07s }
 .btn svg{ width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
 .btn--sm{ padding:9px 15px; font-size:14px; border-radius:10px }
 .btn--lg{ padding:17px 30px; font-size:16.5px }
 
 .btn--accent{
   color:var(--accent-ink);
-  background-image:
-    url("../icons/studs.png"),
-    linear-gradient(90deg, var(--accent) 0%,
-      color-mix(in srgb, var(--accent) 84%, #FFFFFF) 50%, var(--accent) 100%);
-  background-size:20px 20px, 200% 100%;
-  background-repeat:repeat, repeat;
-  background-position:0 0, 0 0;
+  background-image:linear-gradient(90deg, var(--accent) 0%,
+    color-mix(in srgb, var(--accent) 84%, #FFFFFF) 50%, var(--accent) 100%);
+  background-size:200% 100%;
 }
-/* only the gradient layer sweeps; the studs stay put */
-@keyframes sheenBtn{ to{ background-position:0 0, -200% 0 } }
-.btn--accent:hover{ animation:sheenBtn 2.4s linear infinite }
+.btn--accent:hover{ animation:sheen 2.4s linear infinite }
 
 .btn--brick{
-  box-shadow:inset 0 -3px 0 rgba(0,0,0,.26), inset 0 2px 0 rgba(255,255,255,.42), 0 8px 22px rgba(76,141,255,.18);
+  box-shadow:inset 0 -4px 0 rgba(0,0,0,.28), inset 0 2px 0 rgba(255,255,255,.42),
+             0 6px 16px rgba(76,141,255,.16);
 }
-.btn--brick:active{ transform:translateY(2px); box-shadow:inset 0 -1px 0 rgba(0,0,0,.26), inset 0 2px 0 rgba(255,255,255,.3) }
+.btn--brick:hover{
+  box-shadow:inset 0 -4px 0 rgba(0,0,0,.28), inset 0 2px 0 rgba(255,255,255,.55),
+             0 14px 30px rgba(76,141,255,.34);
+}
+/* the brick squashes onto the page instead of just moving */
+.btn--brick:active{
+  transform:translateY(3px) scale(.985);
+  box-shadow:inset 0 -1px 0 rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.32),
+             0 2px 8px rgba(76,141,255,.2);
+}
 
-.btn--ghost{ border-color:var(--line-2); color:var(--text); background:rgba(255,255,255,.02) }
-.btn--ghost:hover{ background:rgba(255,255,255,.06); border-color:rgba(255,255,255,.24) }
+.btn--ghost{
+  border-color:var(--line-2); color:var(--text);
+  background-color:rgba(255,255,255,.02);
+  box-shadow:0 2px 10px rgba(0,0,0,.28);
+}
+.btn--ghost:hover{
+  background-color:rgba(255,255,255,.07); border-color:rgba(255,255,255,.32);
+  box-shadow:0 12px 26px rgba(0,0,0,.45);
+}
+.btn--ghost:active{
+  transform:translateY(2px) scale(.99);
+  background-color:rgba(255,255,255,.1);
+  box-shadow:0 2px 6px rgba(0,0,0,.35);
+}
 
 /* =========================================================
    HERO
@@ -605,24 +625,6 @@ a.comm__meta:hover{ color:var(--pc) }
   background:linear-gradient(90deg, transparent, rgba(76,141,255,.8), transparent);
   z-index:2;
 }
-.cta::after{
-  content:""; position:absolute; inset:0; pointer-events:none;
-  background-image:url("../icons/studs.png");
-  background-size:26px 26px;
-  opacity:1;
-  /* clear the middle so the texture never sits behind the text.
-     two axis gradients unioned, in px so the falloff is the same on all four
-     edges regardless of how wide or tall the card gets */
-  --edge:56px;
-  -webkit-mask-image:
-    linear-gradient(to right,  #000 0, transparent var(--edge), transparent calc(100% - var(--edge)), #000 100%),
-    linear-gradient(to bottom, #000 0, transparent var(--edge), transparent calc(100% - var(--edge)), #000 100%);
-  mask-image:
-    linear-gradient(to right,  #000 0, transparent var(--edge), transparent calc(100% - var(--edge)), #000 100%),
-    linear-gradient(to bottom, #000 0, transparent var(--edge), transparent calc(100% - var(--edge)), #000 100%);
-  -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
-  -webkit-mask-composite:source-over; mask-composite:add;
-}
 .cta__in{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center }
 .cta .sec-num{ padding-top:0; margin-bottom:20px }
 .cta h2{ font-size:clamp(29px,5.4vw,54px); letter-spacing:-.04em; line-height:1.06 }
@@ -799,7 +801,6 @@ html.js .reveal.is-in{ opacity:1; transform:none }
   .stats__grid li{ border-left:0; border-top:1px solid var(--line) }
   .stats__grid li:first-child{ border-top:0 }
   .pstats{ gap:22px 20px }
-  .cta::after{ --edge:26px }
   .ways{ grid-template-columns:1fr }
   .way + .way{ border-left:0; border-top:1px solid var(--line) }
   .cta__meta{ gap:14px 28px }

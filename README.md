@@ -31,7 +31,7 @@ Pages) as-is; `index.html` must sit at the root.
 ```
 index.html            markup + all copy
 assets/css/styles.css design system and every component
-assets/js/main.js     slider, gallery filters, lightbox, copy-to-clipboard, scroll reveal
+assets/js/main.js     slider, lightbox, copy-to-clipboard, scroll reveal
 assets/work/          wiki screenshots (*.webp full size, *-t.webp thumbnails)
 assets/icons/         game, server and profile icons (PNG — see note below)
 ```
@@ -51,12 +51,13 @@ Everything on the page is real and verifiable:
   `siteinfo` API for each wiki.
 - **Game visits** — the Roblox games API.
 - **Game icons** — official Roblox game thumbnails.
-- **Commission link** — the real Roblox profile for `marcel_899`
-  (user ID `2634092704`).
+- **Contacts** — Discord `marcel_899`, and the Roblox profile `dev_marcel1`
+  (user ID `5218135416`).
 
-Figures were recorded **September 2026** and are hardcoded. That includes the
-all five Discord member counts in the Communities list (from the Discord invite API) and the four Bloombot figures beneath it (from the bot's own /stats). Refresh them
-by editing the `<dd>` values in the project slider in `index.html`.
+Figures were recorded **September 2026** and are hardcoded. That includes the five
+Discord member counts in the Communities list (from the Discord invite API) and
+the four Bloombot figures beneath it (from the bot's own /stats). Refresh them by
+editing the `<dd>` values in `index.html`.
 
 ## Things you may want to change
 
@@ -66,7 +67,7 @@ by editing the `<dd>` values in the project slider in `index.html`.
 | Discord handle | `data-copy` on the `.copy` buttons in `#contact` and the footer |
 | Roblox link | the `Roblox profile` links in `#contact` and the footer |
 | Accent colour | `--accent` in `:root` |
-| Stud texture | the `radial-gradient` layer on `.btn--accent`, and `.studs` in the hero |
+| Button feel | `.btn:hover` / `.btn:active`, plus `.btn--brick` and `.btn--ghost` |
 | Per-project colours | `--pc` inline on each `.pinfo`, and `COLORS` in `main.js` |
 | Add a project | add a `.ptab`, a `.shot`, and a `.pinfo`, then extend `URLS` + `COLORS` in `main.js` |
 | Add a gallery image | copy a `.tile` block and set `data-src` / `data-title` / `data-cat` / `data-desc` |

@@ -141,10 +141,11 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 .btn--accent{
   color:var(--accent-ink);
   background-image:
-    radial-gradient(rgba(0,0,0,.13) 1.5px, transparent 1.6px),
+    url("../icons/studs.png"),
     linear-gradient(90deg, var(--accent) 0%,
       color-mix(in srgb, var(--accent) 84%, #FFFFFF) 50%, var(--accent) 100%);
-  background-size:11px 11px, 200% 100%;
+  background-size:20px 20px, 200% 100%;
+  background-repeat:repeat, no-repeat;
   background-position:0 0, 0 0;
 }
 /* only the gradient layer sweeps; the studs stay put */
@@ -177,8 +178,9 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 }
 .studs{
   position:absolute; inset:0;
-  background-image:radial-gradient(rgba(255,255,255,.055) 1.1px, transparent 1.2px);
+  background-image:url("../icons/studs.png");
   background-size:24px 24px;
+  opacity:.28;
   mask-image:radial-gradient(58% 48% at 50% 32%, #000, transparent 76%);
   -webkit-mask-image:radial-gradient(58% 48% at 50% 32%, #000, transparent 76%);
 }

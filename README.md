@@ -31,7 +31,7 @@ Pages) as-is; `index.html` must sit at the root.
 ```
 index.html            markup + all copy
 assets/css/styles.css design system and every component
-assets/js/main.js     slider, lightbox, copy-to-clipboard, back-to-top
+assets/js/main.js     hero meteor canvas, slider, lightbox, copy, back-to-top
 assets/work/          wiki screenshots (*.webp full size, *-t.webp thumbnails)
 assets/icons/         game, server and profile icons (PNG — see note below)
 ```
@@ -71,6 +71,7 @@ editing the `<dd>` values in `index.html`.
 | Discord handle | `data-copy` on the `.copy` buttons in `#contact` and the footer |
 | Roblox link | the `Roblox profile` links in `#contact` and the footer |
 | Accent colour | `--accent` in `:root` |
+| Hero meteors | the `Hero meteor shower` block in `main.js`; fade via the `#heroSky` mask |
 | Button feel | `.btn:hover` / `.btn:active`, plus `.btn--brick` and `.btn--ghost` |
 | Per-project colours | `--pc` inline on each `.pinfo`, and `COLORS` in `main.js` |
 | Add a project | add a `.ptab`, a `.shot`, and a `.pinfo`, then extend `URLS` + `COLORS` in `main.js` |

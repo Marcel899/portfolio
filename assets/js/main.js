@@ -66,7 +66,7 @@
         g.addColorStop(1, 'rgba(' + tint + ',0)');
         bx.fillStyle = g; bx.fillRect(0, 0, W, H);
       }
-      var n = Math.min(460, Math.round(W * H / 1500));
+      var n = Math.min(460, Math.round(W * H / (W < 300 ? 2400 : 1500)));
       for (i = 0; i < n; i++) {
         var x = Math.random() * W, y = Math.random() * H;
         var rr = Math.random() * Math.random() * 1.5 + 0.25;
@@ -120,15 +120,17 @@
       W = cv.width  = Math.max(1, Math.round(r.width  * SCALE));
       H = cv.height = Math.max(1, Math.round(r.height * SCALE));
       paintSky();
+      var small = W < 300;
       twinkle.length = 0;
-      for (var t = 0; t < 24; t++) {
+      for (var t = 0, tn = small ? 12 : 24; t < tn; t++) {
         twinkle.push({ x: Math.random() * W, y: Math.random() * H * 0.9,
                        r: Math.random() * 1.1 + 0.5,
                        p: Math.random() * 6.283,
                        s: 0.6 + Math.random() * 1.5 });
       }
       meteors.length = 0;
-      var m = Math.min(42, Math.max(18, Math.round(W / 21)));
+      var m = small ? Math.max(11, Math.round(W / 17))
+                    : Math.min(42, Math.max(18, Math.round(W / 21)));
       for (var j = 0; j < m; j++) meteors.push(spawn(true));
     }
 
@@ -161,13 +163,33 @@
     function start() { if (!live) { live = true; raf = requestAnimationFrame(draw); } }
     function stop()  { if (live) { live = false; cancelAnimationFrame(raf); } }
 
-    resize();
+    var lastW = 0, lastH = 0;
+    function sync(force) {
+      var r = cv.getBoundingClientRect();
+      var w = Math.round(r.width), h = Math.round(r.height);
+      if (!w || !h) return;
+      /* On phones the URL bar collapsing fires resize mid-scroll. Repainting the
+         whole star field for that is what made it stutter, so ignore height-only
+         changes; object-fit:cover absorbs the difference without stretching. */
+      if (!force && w === lastW && Math.abs(h - lastH) < Math.max(140, lastH * 0.3)) return;
+      lastW = w; lastH = h;
+      resize();
+    }
+
+    sync(true);
     if (reduce) { draw(); cancelAnimationFrame(raf); live = false; return; }
 
+    /* the hero grows when the webfonts swap in; without these the canvas keeps
+       its first-paint size and gets stretched to fit */
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { sync(true); });
+    }
+    window.addEventListener('load', function () { sync(true); }, { once: true });
+
     var rt;
-    window.addEventListener('resize', function () {
-      clearTimeout(rt); rt = setTimeout(resize, 180);
-    });
+    function onResize() { clearTimeout(rt); rt = setTimeout(sync, 200); }
+    window.addEventListener('resize', onResize);
+    if ('ResizeObserver' in window) new ResizeObserver(onResize).observe(cv);
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (e) {
         e[0].isIntersecting ? start() : stop();

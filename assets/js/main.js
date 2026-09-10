@@ -85,37 +85,73 @@
     }
 
     function spawn(seed) {
-      var t = Math.random(), far = t < 0.45, mid = !far && t < 0.8;
-      return {
-        x: Math.random() * (W + 300) - 50,
+      var t = Math.random();
+      var far = t < 0.44, mid = !far && t < 0.78, flare = t > 0.972;
+      /* each one gets its own angle: perfectly parallel streaks look mechanical */
+      var ang = ANG + (Math.random() - 0.5) * 0.34;
+      var m = {
+        x: Math.random() * (W + 320) - 60,
         y: seed ? Math.random() * H : -(Math.random() * 200 + 20),
-        len: far ? 30 + Math.random() * 46 : mid ? 70 + Math.random() * 78 : 120 + Math.random() * 120,
-        sp:  far ? 0.7 + Math.random() * 0.8 : mid ? 1.5 + Math.random() * 1.4 : 2.8 + Math.random() * 2.1,
-        a:   far ? 0.16 + Math.random() * 0.2 : mid ? 0.4 + Math.random() * 0.28 : 0.7 + Math.random() * 0.3,
-        th:  far ? 7 : mid ? 13 : 22
+        len:  flare ? 230 + Math.random() * 150 : far ? 30 + Math.random() * 46 : mid ? 70 + Math.random() * 78 : 120 + Math.random() * 120,
+        sp:   flare ? 6.5 + Math.random() * 3   : far ? 0.7 + Math.random() * 0.8 : mid ? 1.5 + Math.random() * 1.4 : 2.8 + Math.random() * 2.1,
+        a:    flare ? 1                          : far ? 0.16 + Math.random() * 0.2 : mid ? 0.4 + Math.random() * 0.28 : 0.7 + Math.random() * 0.3,
+        th:   flare ? 30                         : far ? 7 : mid ? 13 : 22,
+        ca: Math.cos(ang), sa: Math.sin(ang)
       };
+      m.dx = -m.ca; m.dy = -m.sa;          // travel is opposite the tail
+      return m;
     }
+
+    var twinkle = [];
+    var STAR = (function () {
+      var d = 18, sp = document.createElement('canvas');
+      sp.width = d; sp.height = d;
+      var c = sp.getContext('2d');
+      var g = c.createRadialGradient(d / 2, d / 2, 0, d / 2, d / 2, d / 2);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.35, 'rgba(226,238,255,.55)');
+      g.addColorStop(1, 'rgba(200,220,255,0)');
+      c.fillStyle = g; c.fillRect(0, 0, d, d);
+      return sp;
+    })();
 
     function resize() {
       var r = cv.getBoundingClientRect();
       W = cv.width  = Math.max(1, Math.round(r.width  * SCALE));
       H = cv.height = Math.max(1, Math.round(r.height * SCALE));
       paintSky();
+      twinkle.length = 0;
+      for (var t = 0; t < 24; t++) {
+        twinkle.push({ x: Math.random() * W, y: Math.random() * H * 0.9,
+                       r: Math.random() * 1.1 + 0.5,
+                       p: Math.random() * 6.283,
+                       s: 0.6 + Math.random() * 1.5 });
+      }
       meteors.length = 0;
-      var m = Math.min(40, Math.max(16, Math.round(W / 22)));
+      var m = Math.min(42, Math.max(18, Math.round(W / 21)));
       for (var j = 0; j < m; j++) meteors.push(spawn(true));
     }
 
     function draw() {
       ctx.clearRect(0, 0, W, H);
       ctx.drawImage(bg, 0, 0);
+      var now = performance.now();
+      for (var k = 0; k < twinkle.length; k++) {
+        var w = twinkle[k], d = w.r * 7;
+        ctx.globalAlpha = 0.2 + 0.5 * (0.5 + 0.5 * Math.sin(now / 620 * w.s + w.p));
+        ctx.drawImage(STAR, w.x - d / 2, w.y - d / 2, d, d);
+      }
       for (var j = 0; j < meteors.length; j++) {
         var m = meteors[j];
-        ctx.setTransform(CA, SA, -SA, CA, m.x, m.y);
-        ctx.globalAlpha = m.a;
+        /* ease in on entry and out near the bottom so none of them pop */
+        var f = 1;
+        if (m.y < 70) f = Math.max(0, Math.min(1, (m.y + m.len) / (m.len + 70)));
+        if (m.y > H - 190) f = Math.min(f, Math.max(0, (H - m.y) / 190));
+        ctx.setTransform(m.ca, m.sa, -m.sa, m.ca, m.x, m.y);
+        ctx.globalAlpha = m.a * f;
         ctx.drawImage(SPR, 0, -m.th / 2, m.len, m.th);
-        m.x += DX * m.sp; m.y += DY * m.sp;
-        if (m.y - m.len > H + 30 || m.x + m.len < -60) meteors[j] = spawn(false);
+        m.x += m.dx * m.sp; m.y += m.dy * m.sp;
+        if (m.y - m.len > H + 30 || m.x + m.len < -70) meteors[j] = spawn(false);
       }
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.globalAlpha = 1;

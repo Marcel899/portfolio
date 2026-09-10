@@ -862,6 +862,28 @@ a.comm__meta:hover{ color:var(--pc) }
   .totop{ width:42px; height:42px; border-radius:13px; right:14px; bottom:14px }
   .totop svg{ width:17px; height:17px }
 
+  /* ---- touch targets ----
+     several links were only 18-26px tall. Where a link sits alone in its row
+     an invisible pseudo-element lifts the hit area to 44px without moving
+     anything; where links are stacked, real padding is used so neighbouring
+     targets do not overlap. */
+  .lnk, .comm__row h3 a, a.comm__meta{ position:relative }
+  .lnk::after, .comm__row h3 a::after, a.comm__meta::after{
+    content:""; position:absolute; left:0; right:0; top:50%;
+    height:44px; transform:translateY(-50%);
+  }
+  .foot__links a, .foot__copy{ padding:11px 0 }
+  .frame__nav{ width:44px; height:44px }
+  .totop{ width:44px; height:44px }
+
+  /* ---- readable micro-labels ---- */
+  .stats__grid span{ font-size:11.5px }
+  .stats__grid em{ font-size:10.5px }
+  .pstats dt, .botstats__grid dt, .cta__meta dt{ font-size:11px }
+  .botstats__label, .way__label, .hero__proofLabel, .foot__links h4{ font-size:11px }
+  .slider__note{ font-size:11.5px }
+  a.comm__meta{ font-size:12px }
+
   .gal__grid{ grid-template-columns:repeat(2,1fr); gap:10px }
   .tile{ aspect-ratio:16/11 }
   .tile__meta{ padding:9px 10px }

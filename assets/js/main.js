@@ -52,33 +52,78 @@
       return sp;
     })();
 
+    /* the field is painted a little larger than the canvas so it can drift */
+    var PAD = 34, BW = 0, BH = 0;
+    var BAND = -0.42;                       /* milky way axis, radians */
+
+    function cloud(cx, cy, r, tint, alpha, squash, rot) {
+      bx.save();
+      bx.translate(cx, cy);
+      bx.rotate(rot);
+      bx.scale(1, squash);
+      var g = bx.createRadialGradient(0, 0, 0, 0, 0, r);
+      g.addColorStop(0, 'rgba(' + tint + ',' + alpha + ')');
+      g.addColorStop(0.55, 'rgba(' + tint + ',' + (alpha * 0.38) + ')');
+      g.addColorStop(1, 'rgba(' + tint + ',0)');
+      bx.fillStyle = g;
+      bx.beginPath(); bx.arc(0, 0, r, 0, 6.283); bx.fill();
+      bx.restore();
+    }
+
     function paintSky() {
-      bg.width = W; bg.height = H;
-      bx.clearRect(0, 0, W, H);
-      if ('filter' in bx) bx.filter = 'blur(1.5px)'; /* one-off, not per frame */
-      var i, g, cx, cy, r, tint;
-      for (i = 0; i < 9; i++) {
-        cx = Math.random() * W; cy = Math.random() * H * 0.85;
-        r = Math.min(W, H) * (0.2 + Math.random() * 0.42);
-        tint = Math.random() < 0.55 ? '150,190,255' : '96,126,206';
-        g = bx.createRadialGradient(cx, cy, 0, cx, cy, r);
-        g.addColorStop(0, 'rgba(' + tint + ',' + (0.05 + Math.random() * 0.07) + ')');
-        g.addColorStop(1, 'rgba(' + tint + ',0)');
-        bx.fillStyle = g; bx.fillRect(0, 0, W, H);
+      BW = W + PAD * 2; BH = H + PAD * 2;
+      bg.width = BW; bg.height = BH;
+      bx.clearRect(0, 0, BW, BH);
+      if ('filter' in bx) bx.filter = 'blur(1.5px)';
+
+      var i, x, y, cx, cy, small = W < 300;
+      var mid = { x: BW * 0.5, y: BH * 0.52 };
+      var span = Math.max(BW, BH);
+      var ca = Math.cos(BAND), sa = Math.sin(BAND);
+
+      /* deep colour clouds, then a brighter core along the galactic band */
+      var tints = ['84,110,200', '120,90,190', '70,130,190', '150,190,255'];
+      for (i = 0; i < (small ? 7 : 11); i++) {
+        var t = (Math.random() - 0.5) * span * 1.1;
+        cx = mid.x + ca * t + (Math.random() - 0.5) * span * 0.34;
+        cy = mid.y + sa * t + (Math.random() - 0.5) * span * 0.22;
+        cloud(cx, cy, span * (0.16 + Math.random() * 0.3),
+              tints[(Math.random() * tints.length) | 0],
+              0.034 + Math.random() * 0.04,
+              0.3 + Math.random() * 0.3, BAND);
       }
-      var n = Math.min(460, Math.round(W * H / (W < 300 ? 2400 : 1500)));
+      for (i = 0; i < (small ? 3 : 5); i++) {
+        var t2 = (Math.random() - 0.5) * span * 0.8;
+        cloud(mid.x + ca * t2, mid.y + sa * t2 + (Math.random() - 0.5) * span * 0.06,
+              span * (0.2 + Math.random() * 0.22), '176,206,255',
+              0.038 + Math.random() * 0.03, 0.16 + Math.random() * 0.12, BAND);
+      }
+
+      /* stars: two thirds crowd the band, the rest scatter */
+      var STAR_TINTS = ['232,242,255', '232,242,255', '206,226,255',
+                        '255,236,214', '255,214,190', '198,214,255'];
+      var n = Math.min(560, Math.round(BW * BH / (small ? 2200 : 1300)));
       for (i = 0; i < n; i++) {
-        var x = Math.random() * W, y = Math.random() * H;
+        if (Math.random() < 0.66) {
+          var d = (Math.random() + Math.random() + Math.random() - 1.5) * span * 0.14;
+          var along = (Math.random() - 0.5) * span * 1.3;
+          x = mid.x + ca * along - sa * d;
+          y = mid.y + sa * along + ca * d;
+        } else {
+          x = Math.random() * BW; y = Math.random() * BH;
+        }
+        if (x < -8 || x > BW + 8 || y < -8 || y > BH + 8) continue;
         var rr = Math.random() * Math.random() * 1.5 + 0.25;
         var al = Math.random() * 0.75 + 0.12;
-        if (rr > 0.85) {
-          g = bx.createRadialGradient(x, y, 0, x, y, rr * 6);
-          g.addColorStop(0, 'rgba(214,232,255,' + (al * 0.45) + ')');
-          g.addColorStop(1, 'rgba(214,232,255,0)');
-          bx.fillStyle = g;
-          bx.beginPath(); bx.arc(x, y, rr * 6, 0, 6.283); bx.fill();
+        var tint = STAR_TINTS[(Math.random() * STAR_TINTS.length) | 0];
+        if (rr > 1.0) {
+          var hd = rr * 7.2;
+          bx.globalAlpha = al * 0.34;
+          bx.drawImage(STAR, x - hd / 2, y - hd / 2, hd, hd);
+          bx.globalAlpha = 1;
         }
-        bx.globalAlpha = al; bx.fillStyle = '#e8f1ff';
+        bx.globalAlpha = al;
+        bx.fillStyle = 'rgb(' + tint + ')';
         bx.beginPath(); bx.arc(x, y, rr, 0, 6.283); bx.fill();
         bx.globalAlpha = 1;
       }
@@ -136,7 +181,10 @@
 
     function draw() {
       ctx.clearRect(0, 0, W, H);
-      ctx.drawImage(bg, 0, 0);
+      var dt = performance.now() / 1000;
+      ctx.drawImage(bg,
+        -PAD + Math.sin(dt * 0.045) * PAD * 0.55,
+        -PAD + Math.cos(dt * 0.032) * PAD * 0.45);
       var now = performance.now();
       for (var k = 0; k < twinkle.length; k++) {
         var w = twinkle[k], d = w.r * 7;
@@ -171,6 +219,7 @@
       /* On phones the URL bar collapsing fires resize mid-scroll. Repainting the
          whole star field for that is what made it stutter, so ignore height-only
          changes; object-fit:cover absorbs the difference without stretching. */
+      if (w === lastW && h === lastH) return;              /* nothing moved */
       if (!force && w === lastW && Math.abs(h - lastH) < Math.max(140, lastH * 0.3)) return;
       lastW = w; lastH = h;
       resize();

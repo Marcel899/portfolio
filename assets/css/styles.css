@@ -589,20 +589,33 @@ a.comm__meta:hover{ color:var(--pc) }
   position:relative; display:grid;
   grid-template-columns:minmax(200px,var(--srv-t,300px)) 1fr;
   gap:clamp(16px,3vw,40px); align-items:center;
-  padding:clamp(17px,2.1vw,22px) 8px;
+  padding:clamp(18px,2.2vw,24px) 16px clamp(18px,2.2vw,24px) 20px;
   border-bottom:1px solid var(--line);
-  transition:background .3s var(--ease), padding-inline .3s var(--ease);
+  transition:background .35s var(--ease);
 }
 .srv__row:last-child{ border-bottom:0 }
 .srv__row::before{
-  content:""; position:absolute; left:0; top:0; bottom:0; width:2px;
-  background:var(--accent); transform:scaleY(0); transform-origin:50% 100%;
-  transition:transform .4s var(--ease);
+  content:""; position:absolute; left:0; top:10px; bottom:10px; width:2px;
+  border-radius:2px; background:var(--accent);
+  transform:scaleY(0); transform-origin:50% 50%;
+  transition:transform .42s cubic-bezier(.34,1.45,.64,1);
 }
-.srv__row:hover{ background:rgba(255,255,255,.026) }
-.srv__row:hover::before{ transform:scaleY(1); transform-origin:50% 0 }
-.srv__row h3{ font-size:clamp(18px,2.1vw,22px); letter-spacing:-.026em }
-.srv__row p{ color:var(--muted); font-size:15px; line-height:1.58; max-width:56ch }
+/* fades out to the right instead of ending on a hard edge */
+.srv__row:hover{
+  background:linear-gradient(90deg,
+    rgba(76,141,255,.075) 0%, rgba(76,141,255,.028) 42%, transparent 78%);
+}
+.srv__row:hover::before{ transform:scaleY(1) }
+.srv__row h3{
+  font-size:clamp(18px,2.1vw,22px); letter-spacing:-.026em;
+  transition:transform .35s var(--ease);
+}
+.srv__row:hover h3{ transform:translateX(5px) }
+.srv__row p{
+  color:var(--muted); font-size:15.5px; line-height:1.6; max-width:56ch;
+  transition:color .3s var(--ease);
+}
+.srv__row:hover p{ color:var(--text-2) }
 /* =========================================================
    ABOUT
    ========================================================= */

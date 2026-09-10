@@ -25,30 +25,45 @@
     var ANG = Math.atan2(-DY, -DX);
     var CA = Math.cos(ANG), SA = Math.sin(ANG);
 
+    /* a tapered comet: wide soft halo, a bright core that narrows to nothing,
+       and a hot head. drawn once, then blitted per meteor. */
     var SPR = (function () {
-      var L = 256, TH = 26, sp = document.createElement('canvas');
+      var L = 320, TH = 34, sp = document.createElement('canvas');
       sp.width = L; sp.height = TH;
       var c = sp.getContext('2d'), cy = TH / 2, g;
-      c.lineCap = 'round';
-      if ('filter' in c) c.filter = 'blur(1.1px)';   /* baked in, not per frame */
+      if ('filter' in c) c.filter = 'blur(1.2px)';
+
       g = c.createLinearGradient(0, 0, L, 0);
-      g.addColorStop(0, 'rgba(150,190,255,.18)');
-      g.addColorStop(0.5, 'rgba(120,160,255,.08)');
+      g.addColorStop(0, 'rgba(150,190,255,.20)');
+      g.addColorStop(0.32, 'rgba(122,166,255,.085)');
       g.addColorStop(1, 'rgba(110,150,255,0)');
-      c.strokeStyle = g; c.lineWidth = TH * 0.62;
-      c.beginPath(); c.moveTo(3, cy); c.lineTo(L - 3, cy); c.stroke();
-      g = c.createLinearGradient(0, 0, L, 0);
-      g.addColorStop(0, 'rgba(255,255,255,1)');
-      g.addColorStop(0.2, 'rgba(206,228,255,.68)');
-      g.addColorStop(0.55, 'rgba(140,182,255,.26)');
-      g.addColorStop(1, 'rgba(110,150,255,0)');
-      c.strokeStyle = g; c.lineWidth = TH * 0.15;
-      c.beginPath(); c.moveTo(3, cy); c.lineTo(L - 3, cy); c.stroke();
-      g = c.createRadialGradient(4, cy, 0, 4, cy, TH * 0.32);
-      g.addColorStop(0, 'rgba(255,255,255,1)');
-      g.addColorStop(1, 'rgba(255,255,255,0)');
       c.fillStyle = g;
-      c.beginPath(); c.arc(4, cy, TH * 0.32, 0, 6.283); c.fill();
+      c.beginPath();
+      c.moveTo(0, cy - TH * 0.30);
+      c.lineTo(L, cy - 0.5);
+      c.lineTo(L, cy + 0.5);
+      c.lineTo(0, cy + TH * 0.30);
+      c.closePath(); c.fill();
+
+      g = c.createLinearGradient(0, 0, L, 0);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.1, 'rgba(236,245,255,.88)');
+      g.addColorStop(0.38, 'rgba(172,203,255,.42)');
+      g.addColorStop(1, 'rgba(120,160,255,0)');
+      c.fillStyle = g;
+      c.beginPath();
+      c.moveTo(0, cy - TH * 0.085);
+      c.lineTo(L, cy - 0.3);
+      c.lineTo(L, cy + 0.3);
+      c.lineTo(0, cy + TH * 0.085);
+      c.closePath(); c.fill();
+
+      g = c.createRadialGradient(3, cy, 0, 3, cy, TH * 0.36);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.38, 'rgba(222,237,255,.6)');
+      g.addColorStop(1, 'rgba(190,215,255,0)');
+      c.fillStyle = g;
+      c.beginPath(); c.arc(3, cy, TH * 0.36, 0, 6.283); c.fill();
       return sp;
     })();
 
@@ -140,7 +155,7 @@
         len:  flare ? 230 + Math.random() * 150 : far ? 30 + Math.random() * 46 : mid ? 70 + Math.random() * 78 : 120 + Math.random() * 120,
         sp:   flare ? 6.5 + Math.random() * 3   : far ? 0.7 + Math.random() * 0.8 : mid ? 1.5 + Math.random() * 1.4 : 2.8 + Math.random() * 2.1,
         a:    flare ? 1                          : far ? 0.16 + Math.random() * 0.2 : mid ? 0.4 + Math.random() * 0.28 : 0.7 + Math.random() * 0.3,
-        th:   flare ? 30                         : far ? 7 : mid ? 13 : 22,
+        th:   flare ? 34                         : far ? 9 : mid ? 16 : 26,
         ca: Math.cos(ang), sa: Math.sin(ang)
       };
       m.dx = -m.ca; m.dy = -m.sa;          // travel is opposite the tail
@@ -174,8 +189,8 @@
                        s: 0.6 + Math.random() * 1.5 });
       }
       meteors.length = 0;
-      var m = small ? Math.max(11, Math.round(W / 17))
-                    : Math.min(42, Math.max(18, Math.round(W / 21)));
+      var m = small ? Math.max(6, Math.round(W / 30))
+                    : Math.min(24, Math.max(10, Math.round(W / 36)));
       for (var j = 0; j < m; j++) meteors.push(spawn(true));
     }
 

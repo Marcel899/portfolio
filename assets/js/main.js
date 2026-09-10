@@ -577,6 +577,20 @@
   });
 
   /* ---------------------------------------------------------
+     Bloombot stats disclosure
+     --------------------------------------------------------- */
+  (function () {
+    var btn = document.querySelector('.botstats__toggle');
+    if (!btn) return;
+    var box = btn.closest('.botstats');
+    btn.addEventListener('click', function () {
+      var open = btn.getAttribute('aria-expanded') !== 'true';
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      box.classList.toggle('is-open', open);
+    });
+  })();
+
+  /* ---------------------------------------------------------
      Smooth anchor scroll
      --------------------------------------------------------- */
   $$('a[href^="#"]').forEach(function (a) {

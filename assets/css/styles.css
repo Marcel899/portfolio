@@ -576,11 +576,34 @@ a.comm__meta:hover{ color:var(--pc) }
   padding-top:clamp(20px,2.4vw,28px);
   border-top:1px solid var(--line);
 }
-.botstats__label{
+.botstats__toggle{
+  display:inline-flex; align-items:center; gap:11px;
+  padding:0; background:none; border:0; cursor:pointer; text-align:left;
   font-family:var(--ff-m); font-size:10.5px; letter-spacing:.12em;
-  text-transform:uppercase; color:var(--muted); margin-bottom:20px;
+  text-transform:uppercase; color:var(--muted);
+  transition:color .22s var(--ease);
 }
-.botstats__grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:24px 34px }
+.botstats__toggle:hover{ color:var(--text-2) }
+.botstats__chev{
+  flex:0 0 auto; width:15px; height:15px;
+  fill:none; stroke:currentColor; stroke-width:2.1;
+  stroke-linecap:round; stroke-linejoin:round;
+  transition:transform .34s var(--ease);
+}
+.botstats__toggle[aria-expanded="true"] .botstats__chev{ transform:rotate(180deg) }
+
+/* 0fr -> 1fr collapses to the panel's own height, so the stats can grow
+   without anyone maintaining a hardcoded max-height. */
+.botstats__panel{
+  display:grid; grid-template-rows:0fr; opacity:0;
+  transition:grid-template-rows .4s var(--ease), opacity .3s var(--ease);
+}
+.botstats__panel > div{ overflow:hidden; min-height:0 }
+.botstats.is-open .botstats__panel{ grid-template-rows:1fr; opacity:1 }
+.botstats__grid{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:24px 34px;
+  padding-top:22px;
+}
 .botstats__grid dt{
   font-family:var(--ff-m); font-size:10px; letter-spacing:.11em;
   text-transform:uppercase; color:var(--muted);
@@ -838,7 +861,7 @@ a.comm__meta:hover{ color:var(--pc) }
   .comm__row{ grid-template-columns:44px 1fr; gap:6px 16px; align-items:center }
   .comm__row .comm__roles,.comm__row .comm__meta{ grid-column:2 }
   .comm__meta{ padding-left:0 }
-  .botstats__grid{ grid-template-columns:repeat(2,1fr); gap:20px 24px }
+  .botstats__grid{ grid-template-columns:repeat(2,1fr); gap:20px 24px; padding-top:16px }
 
   .about__grid{ grid-template-columns:1fr; gap:22px }
   .srv__row{ grid-template-columns:1fr; gap:6px; align-items:start }
@@ -880,7 +903,8 @@ a.comm__meta:hover{ color:var(--pc) }
   .stats__grid span{ font-size:11.5px }
   .stats__grid em{ font-size:10.5px }
   .pstats dt, .botstats__grid dt, .cta__meta dt{ font-size:11px }
-  .botstats__label, .way__label, .hero__proofLabel, .foot__links h4{ font-size:11px }
+  .botstats__toggle, .way__label, .hero__proofLabel, .foot__links h4{ font-size:11px }
+  .botstats__toggle{ padding:11px 0 }
   .slider__note{ font-size:11.5px }
   a.comm__meta{ font-size:12px }
 

@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/styles.css?v=53">
+<link rel="stylesheet" href="assets/css/styles.css?v=54">
 <link rel="preload" as="image" href="assets/work/gtd-home.webp">
 </head>
 <body>
@@ -347,13 +347,20 @@
     </ul>
 
     <div class="botstats">
-      <p class="botstats__label">Bloombot &mdash; the Discord bot I own and build</p>
-      <dl class="botstats__grid">
-        <div><dt>Servers</dt><dd>83</dd></div>
-        <div><dt>Commands run</dt><dd>7,089</dd></div>
-        <div><dt>Registered users</dt><dd>427</dd></div>
-        <div><dt>Error rate</dt><dd>0.00%</dd></div>
-      </dl>
+      <button class="botstats__toggle" type="button" aria-expanded="false" aria-controls="botstatsPanel">
+        <span>Bloombot &mdash; the Discord bot I own and build</span>
+        <svg class="botstats__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"/></svg>
+      </button>
+      <div class="botstats__panel" id="botstatsPanel">
+        <div>
+          <dl class="botstats__grid">
+            <div><dt>Servers</dt><dd>83</dd></div>
+            <div><dt>Commands run</dt><dd>7,089</dd></div>
+            <div><dt>Registered users</dt><dd>427</dd></div>
+            <div><dt>Error rate</dt><dd>0.00%</dd></div>
+          </dl>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -512,6 +519,6 @@
   </figure>
 </div>
 
-<script src="assets/js/main.js?v=53" defer></script>
+<script src="assets/js/main.js?v=54" defer></script>
 </body>
 </html>

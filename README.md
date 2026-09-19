@@ -58,10 +58,15 @@ Everything on the page is real and verifiable:
 - **Contacts** — Discord `marcel_899`, and the Roblox profile `dev_marcel1`
   (user ID `5218135416`).
 
-Figures were recorded **September 2026** and are hardcoded. That includes the five
-Discord member counts in the Communities list (from the Discord invite API) and
-the four Bloombot figures beneath it (from the bot's own /stats). Refresh them by
-editing the `<dd>` values in `index.html`.
+Figures were last refreshed **19 September 2026** and are hardcoded: wiki
+counts, game visits, and the five Discord member counts in the Communities list
+(Discord invite API). The four Bloombot figures beneath it come from the bot's
+own `/stats` and have to be re-read there by hand — they are still the 5
+September 2026 reading. Refresh any of them by editing the `<dd>` values in
+`index.html`.
+
+Game icons are pulled from the Roblox thumbnails API at 512px and downscaled to
+192px, which covers the largest on-page size (72px) on a 2x display.
 
 ## Things you may want to change
 

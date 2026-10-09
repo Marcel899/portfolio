@@ -282,9 +282,10 @@
     var URLS = [
       'gtd.fandom.com/wiki/Garden_Tower_Defense_Wiki',
       'unbox-asmr.fandom.com/wiki/Unbox_ASMR_Wiki',
-      'stream-a-cheese-pull.fandom.com/wiki/Stream_A_Cheese_Pull!_Wiki'
+      'stream-a-cheese-pull.fandom.com/wiki/Stream_A_Cheese_Pull!_Wiki',
+      'defend-your-treehouse.fandom.com/wiki/Defend_Your_Treehouse_Wiki'
     ];
-    var COLORS = ['#5FD647', '#A972FF', '#FFC42E'];
+    var COLORS = ['#5FD647', '#A972FF', '#FFC42E', '#FF6A5A'];
     var current = 0;
     var counted = {};
 

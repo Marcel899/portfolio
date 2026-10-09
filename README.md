@@ -48,9 +48,12 @@ your change appears not to have happened.
 
 Everything on the page is real and verifiable:
 
-- **Screenshots** — captured from the three live Fandom wikis
-  (`gtd.fandom.com`, `unbox-asmr.fandom.com`, `stream-a-cheese-pull.fandom.com`),
-  cropped to the article content so no Fandom chrome or ads appear.
+- **Screenshots** — captured from the four live Fandom wikis
+  (`gtd.fandom.com`, `unbox-asmr.fandom.com`, `stream-a-cheese-pull.fandom.com`,
+  `defend-your-treehouse.fandom.com`), cropped to the article content so no
+  Fandom chrome or ads appear. Fandom serves `/wiki/` pages behind a bot check
+  that headless Chrome trips, so the capture script runs a normal (headful)
+  window and pauses between pages.
 - **Wiki stats** (articles / edits / photos / files) — the MediaWiki
   `siteinfo` API for each wiki.
 - **Game visits** — the Roblox games API.
@@ -58,7 +61,7 @@ Everything on the page is real and verifiable:
 - **Contacts** — Discord `marcel_899`, and the Roblox profile `dev_marcel1`
   (user ID `5218135416`).
 
-Figures were last refreshed **19 September 2026** and are hardcoded: wiki
+Figures were last refreshed **9 October 2026** and are hardcoded: wiki
 counts, game visits, and the five Discord member counts in the Communities list
 (Discord invite API). The four Bloombot figures beneath it come from the bot's
 own `/stats` and have to be re-read there by hand — they are still the 5
@@ -82,7 +85,8 @@ Game icons are pulled from the Roblox thumbnails API at 512px and downscaled to
 | Add a project | add a `.ptab`, a `.shot`, and a `.pinfo`, then extend `URLS` + `COLORS` in `main.js` |
 | Add a gallery image | copy a `.tile` block and set `data-src` / `data-title` / `data-cat` / `data-desc` |
 
-The gallery shows 3 screens per project. Six more are already in `assets/work/`
+The gallery shows 3 screens per project, 4 projects. Six more screens are
+already in `assets/work/`
 and unused — `gtd-enemies`, `gtd-crates`, `gtd-codes`, `unbox-updates`,
 `unbox-codes`, `sacp-codes` — so you can drop any of them back in without
 re-capturing anything.

@@ -194,18 +194,30 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 /* the illustration: anchored to the bottom so its horizon stays the horizon,
    and dissolved downward into the page the same way the meteors are */
 .hero__art{
-  position:absolute; inset:0;
-  /* a scrim over the picture: its lit ground is brighter than anything else
-     on the site, and the hero copy has to sit on top of it */
+  /* oversized so the drift below never exposes an edge */
+  position:absolute; inset:-3%;
+  /* two layers over the picture: a wash that lifts the moon's side of the
+     frame so the scene reads as lit rather than flat-darkened, and a vertical
+     scrim, because the lit ground is brighter than anything else on the site
+     and the hero copy has to sit on top of it */
   background:
+    radial-gradient(86% 64% at 82% 26%, rgba(150,190,255,.13), transparent 62%),
     linear-gradient(180deg,
       rgba(7,11,21,.14) 0%, rgba(7,11,21,.30) 44%,
       rgba(7,11,21,.58) 70%, rgba(7,9,16,.88) 100%),
     url("../img/hero-sky.webp") center bottom / cover no-repeat;
-  background-size:100% 100%, cover;
+  background-size:100% 100%, 100% 100%, cover;
   opacity:.95;
   -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 46%,rgba(0,0,0,.38) 78%,transparent 99%);
   mask-image:linear-gradient(180deg,#000 0%,#000 46%,rgba(0,0,0,.38) 78%,transparent 99%);
+  /* the canvas sky used to drift; without it the hero sat dead still. one
+     composited transform, so it costs the GPU nothing. */
+  animation:heroDrift 76s ease-in-out infinite alternate;
+  will-change:transform;
+}
+@keyframes heroDrift{
+  from{ transform:translate3d(-0.8%, 0.5%, 0) scale(1.015) }
+  to  { transform:translate3d( 0.8%,-0.5%, 0) scale(1.045) }
 }
 #heroSky{
   position:absolute; inset:0; width:100%; height:100%; display:block;
@@ -928,7 +940,7 @@ a.comm__meta:hover{ color:var(--pc) }
   .stats__grid em{ font-size:10.5px }
   /* a phone crops the illustration hard; bias the window toward the moon
      so the hero keeps a subject instead of plain sky */
-  .hero__art{ background-position:50% 100%, 76% 100% }
+  .hero__art{ background-position:0 0, 0 0, 76% 100% }   /* wash, scrim, picture */
 
   .pstats dt, .botstats__grid dt, .cta__meta dt{ font-size:11px }
   .botstats__toggle, .way__label, .hero__proofLabel, .foot__links h4{ font-size:11px }
@@ -954,5 +966,6 @@ a.comm__meta:hover{ color:var(--pc) }
    ========================================================= */
 @media (prefers-reduced-motion:reduce){
   html{ scroll-behavior:auto }
+  .hero__art{ animation:none; transform:none }
   *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important }
 }

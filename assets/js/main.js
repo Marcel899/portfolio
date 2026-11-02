@@ -24,6 +24,12 @@
     if (!cv) return;
     var ctx = cv.getContext('2d');
     var SCALE = 0.5, W = 0, H = 0, meteors = [], raf = null, live = false;
+    /* where the illustration's ridgeline sits, as a fraction of hero height.
+       the art is bottom-anchored and cover-scaled, and at any aspect narrower
+       than its own 2.33 the height is the binding dimension, so this holds at
+       every breakpoint. meteors are behind the landscape: they have to be gone
+       by the time they reach it. */
+    var HORIZON = 0.52, FADE = 0.17;
     var DX = -0.34, DY = 0.94;
     var ANG = Math.atan2(-DY, -DX);
     var CA = Math.cos(ANG), SA = Math.sin(ANG);
@@ -77,7 +83,7 @@
       var ang = ANG + (Math.random() - 0.5) * 0.34;
       var m = {
         x: Math.random() * (W + 320) - 60,
-        y: seed ? Math.random() * H : -(Math.random() * 200 + 20),
+        y: seed ? Math.random() * H * HORIZON : -(Math.random() * 200 + 20),
         len:  flare ? 230 + Math.random() * 150 : far ? 30 + Math.random() * 46 : mid ? 70 + Math.random() * 78 : 120 + Math.random() * 120,
         sp:   flare ? 6.5 + Math.random() * 3   : far ? 0.7 + Math.random() * 0.8 : mid ? 1.5 + Math.random() * 1.4 : 2.8 + Math.random() * 2.1,
         a:    flare ? 1                          : far ? 0.16 + Math.random() * 0.2 : mid ? 0.4 + Math.random() * 0.28 : 0.7 + Math.random() * 0.3,
@@ -110,7 +116,7 @@
       /* 0.46 keeps them in the illustration's sky, not on its ground */
       for (var t = 0, tn = small ? 8 : 16; t < tn; t++) {
         twinkle.push({ x: Math.random() * W, y: Math.random() * H * 0.46,
-                       r: Math.random() * 1.1 + 0.5,
+                       r: Math.random() * 0.62 + 0.3,
                        p: Math.random() * 6.283,
                        s: 0.6 + Math.random() * 1.5 });
       }
@@ -123,22 +129,24 @@
     function draw() {
       ctx.clearRect(0, 0, W, H);
       var now = performance.now();
+      var hz = H * HORIZON, band = H * FADE;
       for (var k = 0; k < twinkle.length; k++) {
-        var w = twinkle[k], d = w.r * 7;
+        var w = twinkle[k], d = w.r * 5;
         ctx.globalAlpha = 0.2 + 0.5 * (0.5 + 0.5 * Math.sin(now / 620 * w.s + w.p));
         ctx.drawImage(STAR, w.x - d / 2, w.y - d / 2, d, d);
       }
       for (var j = 0; j < meteors.length; j++) {
         var m = meteors[j];
-        /* ease in on entry and out near the bottom so none of them pop */
+        /* ease in on entry and out into the ridgeline so none of them pop,
+           and none of them streak across the ground */
         var f = 1;
         if (m.y < 70) f = Math.max(0, Math.min(1, (m.y + m.len) / (m.len + 70)));
-        if (m.y > H - 190) f = Math.min(f, Math.max(0, (H - m.y) / 190));
+        if (m.y > hz - band) f = Math.min(f, Math.max(0, (hz - m.y) / band));
         ctx.setTransform(m.ca, m.sa, -m.sa, m.ca, m.x, m.y);
         ctx.globalAlpha = m.a * f;
         ctx.drawImage(SPR, 0, -m.th / 2, m.len, m.th);
         m.x += m.dx * m.sp; m.y += m.dy * m.sp;
-        if (m.y - m.len > H + 30 || m.x + m.len < -70) meteors[j] = spawn(false);
+        if (m.y - m.len > hz || m.x + m.len < -70) meteors[j] = spawn(false);
       }
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.globalAlpha = 1;

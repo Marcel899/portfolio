@@ -31,9 +31,8 @@ Pages) as-is; `index.html` must sit at the root.
 ```
 index.html            markup + all copy
 assets/css/styles.css design system and every component
-assets/js/main.js     hero meteor canvas, slider, lightbox, copy, back-to-top
+assets/js/main.js     hero meteors, slider, lightbox, copy, back-to-top
 assets/work/          wiki screenshots (*.webp full size, *-t.webp thumbnails)
-assets/img/           hero-sky.webp — the hero illustration
 assets/icons/         game, server and profile icons
 assets/icons/roles/   role badges used in the role chips
 ```

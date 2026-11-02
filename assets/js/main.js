@@ -11,9 +11,9 @@
   /* ---------------------------------------------------------
      Hero meteors
 
-     The night sky itself is an illustration behind this canvas (.hero__art),
-     so the canvas stays transparent and only carries what moves: meteors and
-     a handful of twinkles over the sky half of the picture.
+     The sky, the moon and the landscape are vector art around this canvas,
+     which sits between the sky and the mountains: it stays transparent and
+     carries only the meteors, and the ridges in front of it occlude them.
 
      Rendered at 0.5x and upscaled by CSS, which softens it for free and cuts
      the pixel work. Meteors are one pre-rendered sprite drawn with drawImage
@@ -24,12 +24,11 @@
     if (!cv) return;
     var ctx = cv.getContext('2d');
     var SCALE = 0.5, W = 0, H = 0, meteors = [], raf = null, live = false;
-    /* where the illustration's ridgeline sits, as a fraction of hero height.
-       the art is bottom-anchored and cover-scaled, and at any aspect narrower
-       than its own 2.33 the height is the binding dimension, so this holds at
-       every breakpoint. meteors are behind the landscape: they have to be gone
-       by the time they reach it. */
-    var HORIZON = 0.52, FADE = 0.17;
+    /* The ridgeline, measured off the landscape SVG itself: prof[x] is the
+       canvas row where the silhouette begins in that column, so a meteor is
+       dimmed and retired against the peak or valley it actually meets rather
+       than against one flat line. Rebuilt whenever the canvas is resized. */
+    var prof = null, hzMin = 0, FADE = 44;
     var DX = -0.34, DY = 0.94;
     var ANG = Math.atan2(-DY, -DX);
     var CA = Math.cos(ANG), SA = Math.sin(ANG);
@@ -83,7 +82,7 @@
       var ang = ANG + (Math.random() - 0.5) * 0.34;
       var m = {
         x: Math.random() * (W + 320) - 60,
-        y: seed ? Math.random() * H * HORIZON : -(Math.random() * 200 + 20),
+        y: seed ? Math.random() * hzMin : -(Math.random() * 200 + 20),
         len:  flare ? 230 + Math.random() * 150 : far ? 30 + Math.random() * 46 : mid ? 70 + Math.random() * 78 : 120 + Math.random() * 120,
         sp:   flare ? 6.5 + Math.random() * 3   : far ? 0.7 + Math.random() * 0.8 : mid ? 1.5 + Math.random() * 1.4 : 2.8 + Math.random() * 2.1,
         a:    flare ? 1                          : far ? 0.16 + Math.random() * 0.2 : mid ? 0.4 + Math.random() * 0.28 : 0.7 + Math.random() * 0.3,
@@ -94,59 +93,86 @@
       return m;
     }
 
-    var twinkle = [];
-    var STAR = (function () {
-      var d = 18, sp = document.createElement('canvas');
-      sp.width = d; sp.height = d;
-      var c = sp.getContext('2d');
-      var g = c.createRadialGradient(d / 2, d / 2, 0, d / 2, d / 2, d / 2);
-      g.addColorStop(0, 'rgba(255,255,255,1)');
-      g.addColorStop(0.35, 'rgba(226,238,255,.55)');
-      g.addColorStop(1, 'rgba(200,220,255,0)');
-      c.fillStyle = g; c.fillRect(0, 0, d, d);
-      return sp;
-    })();
+    /* Walk each ridge path and keep, per column, the highest point it reaches.
+       getScreenCTM maps the SVG's own units to CSS pixels, which is also what
+       getBoundingClientRect is in, so the two line up without knowing anything
+       about the viewBox or how preserveAspectRatio sliced it. */
+    function buildHorizon() {
+      prof = null;
+      hzMin = Math.round(H * 0.5);
+      var ridges = document.querySelectorAll('.mond-ridge');
+      var r = cv.getBoundingClientRect();
+      if (!ridges.length || !r.width || !r.height) return;
+
+      var sx = W / r.width, sy = H / r.height;
+      var pr = new Float32Array(W), i;
+      for (i = 0; i < W; i++) pr[i] = Infinity;
+
+      for (var k = 0; k < ridges.length; k++) {
+        var path = ridges[k];
+        if (!path.getTotalLength) return;
+        var m = path.getScreenCTM(), L = path.getTotalLength();
+        if (!m || !L) return;
+        var steps = Math.min(1200, Math.max(500, Math.round(L / 3)));
+        for (var t = 0; t <= steps; t++) {
+          var q = path.getPointAtLength(L * t / steps);
+          var col = Math.floor((m.a * q.x + m.c * q.y + m.e - r.left) * sx);
+          if (col < 0 || col >= W) continue;
+          var row = (m.b * q.x + m.d * q.y + m.f - r.top) * sy;
+          if (row < pr[col]) pr[col] = row;
+        }
+      }
+
+      /* carry the nearest measured column into any the sampling stepped over */
+      var last = Infinity;
+      for (i = 0; i < W; i++) { if (pr[i] === Infinity) pr[i] = last; else last = pr[i]; }
+      last = Infinity;
+      for (i = W - 1; i >= 0; i--) { if (pr[i] === Infinity) pr[i] = last; else last = pr[i]; }
+
+      var lo = Infinity;
+      for (i = 0; i < W; i++) {
+        if (!isFinite(pr[i])) pr[i] = H; else if (pr[i] < lo) lo = pr[i];
+      }
+      if (!isFinite(lo) || lo < 24) return;      /* nothing usable; keep the fallback */
+      hzMin = lo;
+      prof = pr;
+    }
+
+    function horizonAt(x) {
+      if (!prof) return H;
+      var i = x < 0 ? 0 : (x >= W ? W - 1 : Math.floor(x));
+      return prof[i];
+    }
 
     function resize() {
       var r = cv.getBoundingClientRect();
       W = cv.width  = Math.max(1, Math.round(r.width  * SCALE));
       H = cv.height = Math.max(1, Math.round(r.height * SCALE));
       var small = W < 300;
-      twinkle.length = 0;
-      /* 0.46 keeps them in the illustration's sky, not on its ground */
-      for (var t = 0, tn = small ? 8 : 16; t < tn; t++) {
-        twinkle.push({ x: Math.random() * W, y: Math.random() * H * 0.46,
-                       r: Math.random() * 0.62 + 0.3,
-                       p: Math.random() * 6.283,
-                       s: 0.6 + Math.random() * 1.5 });
-      }
+      buildHorizon();
       meteors.length = 0;
-      var m = small ? Math.max(6, Math.round(W / 30))
-                    : Math.min(24, Math.max(10, Math.round(W / 36)));
+      /* fewer than the old painted sky carried: against art this clean a
+         dozen at once reads as rain rather than as meteors */
+      var m = small ? Math.max(4, Math.round(W / 46))
+                    : Math.min(16, Math.max(7, Math.round(W / 54)));
       for (var j = 0; j < m; j++) meteors.push(spawn(true));
     }
 
     function draw() {
       ctx.clearRect(0, 0, W, H);
-      var now = performance.now();
-      var hz = H * HORIZON, band = H * FADE;
-      for (var k = 0; k < twinkle.length; k++) {
-        var w = twinkle[k], d = w.r * 5;
-        ctx.globalAlpha = 0.2 + 0.5 * (0.5 + 0.5 * Math.sin(now / 620 * w.s + w.p));
-        ctx.drawImage(STAR, w.x - d / 2, w.y - d / 2, d, d);
-      }
       for (var j = 0; j < meteors.length; j++) {
         var m = meteors[j];
-        /* ease in on entry and out into the ridgeline so none of them pop,
-           and none of them streak across the ground */
-        var f = 1;
+        /* ease in on entry, and out as the head nears whatever the ridgeline
+           does in this column, so the mountains put them out instead of
+           clipping a streak in half */
+        var hz = horizonAt(m.x), f = 1;
         if (m.y < 70) f = Math.max(0, Math.min(1, (m.y + m.len) / (m.len + 70)));
-        if (m.y > hz - band) f = Math.min(f, Math.max(0, (hz - m.y) / band));
+        if (m.y > hz - FADE) f = Math.min(f, Math.max(0, (hz - m.y) / FADE));
         ctx.setTransform(m.ca, m.sa, -m.sa, m.ca, m.x, m.y);
         ctx.globalAlpha = m.a * f;
         ctx.drawImage(SPR, 0, -m.th / 2, m.len, m.th);
         m.x += m.dx * m.sp; m.y += m.dy * m.sp;
-        if (m.y - m.len > hz || m.x + m.len < -70) meteors[j] = spawn(false);
+        if (m.y > hz || m.x + m.len < -70) meteors[j] = spawn(false);
       }
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.globalAlpha = 1;

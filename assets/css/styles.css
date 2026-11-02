@@ -191,6 +191,22 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
     radial-gradient(58% 44% at 50% 26%, rgba(76,141,255,.15), transparent 70%),
     linear-gradient(180deg, #0B1428 0%, #070B15 58%, var(--bg) 100%);
 }
+/* the illustration: anchored to the bottom so its horizon stays the horizon,
+   and dissolved downward into the page the same way the meteors are */
+.hero__art{
+  position:absolute; inset:0;
+  /* a scrim over the picture: its lit ground is brighter than anything else
+     on the site, and the hero copy has to sit on top of it */
+  background:
+    linear-gradient(180deg,
+      rgba(7,11,21,.14) 0%, rgba(7,11,21,.30) 44%,
+      rgba(7,11,21,.58) 70%, rgba(7,9,16,.88) 100%),
+    url("../img/hero-sky.webp") center bottom / cover no-repeat;
+  background-size:100% 100%, cover;
+  opacity:.95;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 46%,rgba(0,0,0,.38) 78%,transparent 99%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 46%,rgba(0,0,0,.38) 78%,transparent 99%);
+}
 #heroSky{
   position:absolute; inset:0; width:100%; height:100%; display:block;
   object-fit:cover;   /* crop rather than stretch if the box changes */
@@ -427,10 +443,17 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   font-family:var(--ff-d); font-size:14px; font-weight:500;
   letter-spacing:-.012em; color:var(--text-2);
 }
-.roles li::before{
+.roles li:not(:has(img))::before{
   content:""; flex:0 0 auto;
   width:5px; height:5px; border-radius:2px;
   background:var(--pc);
+}
+.roles li img, .comm__roles li img{
+  flex:0 0 auto; width:18px; height:18px;
+  opacity:.92; transition:opacity .22s var(--ease), transform .22s var(--ease);
+}
+.pinfo:hover .roles li img, .comm__row:hover .comm__roles li img{
+  opacity:1; transform:translateY(-1px);
 }
 .pinfo__desc{
   grid-column:1; align-self:start;
@@ -567,7 +590,7 @@ a.comm__meta:hover{ color:var(--pc) }
   font-family:var(--ff-d); font-size:14.5px; font-weight:500;
   letter-spacing:-.012em; color:var(--text-2);
 }
-.comm__roles li::before{
+.comm__roles li:not(:has(img))::before{
   content:""; flex:0 0 auto;
   width:5px; height:5px; border-radius:2px; background:var(--pc);
 }
@@ -903,6 +926,10 @@ a.comm__meta:hover{ color:var(--pc) }
   /* ---- readable micro-labels ---- */
   .stats__grid span{ font-size:11.5px }
   .stats__grid em{ font-size:10.5px }
+  /* a phone crops the illustration hard; bias the window toward the moon
+     so the hero keeps a subject instead of plain sky */
+  .hero__art{ background-position:50% 100%, 76% 100% }
+
   .pstats dt, .botstats__grid dt, .cta__meta dt{ font-size:11px }
   .botstats__toggle, .way__label, .hero__proofLabel, .foot__links h4{ font-size:11px }
   .botstats__toggle{ padding:11px 0 }

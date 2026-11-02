@@ -9,9 +9,13 @@
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------------------------------------------------------
-     Hero night sky
+     Hero meteors
 
-     Rendered at 0.6x and upscaled by CSS, which softens it for free and cuts
+     The night sky itself is an illustration behind this canvas (.hero__art),
+     so the canvas stays transparent and only carries what moves: meteors and
+     a handful of twinkles over the sky half of the picture.
+
+     Rendered at 0.5x and upscaled by CSS, which softens it for free and cuts
      the pixel work. Meteors are one pre-rendered sprite drawn with drawImage
      rather than a fresh gradient per meteor per frame.
      --------------------------------------------------------- */
@@ -19,7 +23,6 @@
     var cv = $('#heroSky');
     if (!cv) return;
     var ctx = cv.getContext('2d');
-    var bg = document.createElement('canvas'), bx = bg.getContext('2d');
     var SCALE = 0.5, W = 0, H = 0, meteors = [], raf = null, live = false;
     var DX = -0.34, DY = 0.94;
     var ANG = Math.atan2(-DY, -DX);
@@ -67,83 +70,6 @@
       return sp;
     })();
 
-    /* the field is painted a little larger than the canvas so it can drift */
-    var PAD = 34, BW = 0, BH = 0;
-    var BAND = -0.42;                       /* milky way axis, radians */
-
-    function cloud(cx, cy, r, tint, alpha, squash, rot) {
-      bx.save();
-      bx.translate(cx, cy);
-      bx.rotate(rot);
-      bx.scale(1, squash);
-      var g = bx.createRadialGradient(0, 0, 0, 0, 0, r);
-      g.addColorStop(0, 'rgba(' + tint + ',' + alpha + ')');
-      g.addColorStop(0.55, 'rgba(' + tint + ',' + (alpha * 0.38) + ')');
-      g.addColorStop(1, 'rgba(' + tint + ',0)');
-      bx.fillStyle = g;
-      bx.beginPath(); bx.arc(0, 0, r, 0, 6.283); bx.fill();
-      bx.restore();
-    }
-
-    function paintSky() {
-      BW = W + PAD * 2; BH = H + PAD * 2;
-      bg.width = BW; bg.height = BH;
-      bx.clearRect(0, 0, BW, BH);
-      if ('filter' in bx) bx.filter = 'blur(1.5px)';
-
-      var i, x, y, cx, cy, small = W < 300;
-      var mid = { x: BW * 0.5, y: BH * 0.52 };
-      var span = Math.max(BW, BH);
-      var ca = Math.cos(BAND), sa = Math.sin(BAND);
-
-      /* deep colour clouds, then a brighter core along the galactic band */
-      var tints = ['84,110,200', '120,90,190', '70,130,190', '150,190,255'];
-      for (i = 0; i < (small ? 7 : 11); i++) {
-        var t = (Math.random() - 0.5) * span * 1.1;
-        cx = mid.x + ca * t + (Math.random() - 0.5) * span * 0.34;
-        cy = mid.y + sa * t + (Math.random() - 0.5) * span * 0.22;
-        cloud(cx, cy, span * (0.16 + Math.random() * 0.3),
-              tints[(Math.random() * tints.length) | 0],
-              0.034 + Math.random() * 0.04,
-              0.3 + Math.random() * 0.3, BAND);
-      }
-      for (i = 0; i < (small ? 3 : 5); i++) {
-        var t2 = (Math.random() - 0.5) * span * 0.8;
-        cloud(mid.x + ca * t2, mid.y + sa * t2 + (Math.random() - 0.5) * span * 0.06,
-              span * (0.2 + Math.random() * 0.22), '176,206,255',
-              0.038 + Math.random() * 0.03, 0.16 + Math.random() * 0.12, BAND);
-      }
-
-      /* stars: two thirds crowd the band, the rest scatter */
-      var STAR_TINTS = ['232,242,255', '232,242,255', '206,226,255',
-                        '255,236,214', '255,214,190', '198,214,255'];
-      var n = Math.min(560, Math.round(BW * BH / (small ? 2200 : 1300)));
-      for (i = 0; i < n; i++) {
-        if (Math.random() < 0.66) {
-          var d = (Math.random() + Math.random() + Math.random() - 1.5) * span * 0.14;
-          var along = (Math.random() - 0.5) * span * 1.3;
-          x = mid.x + ca * along - sa * d;
-          y = mid.y + sa * along + ca * d;
-        } else {
-          x = Math.random() * BW; y = Math.random() * BH;
-        }
-        if (x < -8 || x > BW + 8 || y < -8 || y > BH + 8) continue;
-        var rr = Math.random() * Math.random() * 1.5 + 0.25;
-        var al = Math.random() * 0.75 + 0.12;
-        var tint = STAR_TINTS[(Math.random() * STAR_TINTS.length) | 0];
-        if (rr > 1.0) {
-          var hd = rr * 7.2;
-          bx.globalAlpha = al * 0.34;
-          bx.drawImage(STAR, x - hd / 2, y - hd / 2, hd, hd);
-          bx.globalAlpha = 1;
-        }
-        bx.globalAlpha = al;
-        bx.fillStyle = 'rgb(' + tint + ')';
-        bx.beginPath(); bx.arc(x, y, rr, 0, 6.283); bx.fill();
-        bx.globalAlpha = 1;
-      }
-    }
-
     function spawn(seed) {
       var t = Math.random();
       var far = t < 0.44, mid = !far && t < 0.78, flare = t > 0.972;
@@ -179,11 +105,11 @@
       var r = cv.getBoundingClientRect();
       W = cv.width  = Math.max(1, Math.round(r.width  * SCALE));
       H = cv.height = Math.max(1, Math.round(r.height * SCALE));
-      paintSky();
       var small = W < 300;
       twinkle.length = 0;
-      for (var t = 0, tn = small ? 12 : 24; t < tn; t++) {
-        twinkle.push({ x: Math.random() * W, y: Math.random() * H * 0.9,
+      /* 0.46 keeps them in the illustration's sky, not on its ground */
+      for (var t = 0, tn = small ? 8 : 16; t < tn; t++) {
+        twinkle.push({ x: Math.random() * W, y: Math.random() * H * 0.46,
                        r: Math.random() * 1.1 + 0.5,
                        p: Math.random() * 6.283,
                        s: 0.6 + Math.random() * 1.5 });
@@ -196,10 +122,6 @@
 
     function draw() {
       ctx.clearRect(0, 0, W, H);
-      var dt = performance.now() / 1000;
-      ctx.drawImage(bg,
-        -PAD + Math.sin(dt * 0.045) * PAD * 0.55,
-        -PAD + Math.cos(dt * 0.032) * PAD * 0.45);
       var now = performance.now();
       for (var k = 0; k < twinkle.length; k++) {
         var w = twinkle[k], d = w.r * 7;

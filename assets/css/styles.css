@@ -212,11 +212,17 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 70%,rgba(0,0,0,.62) 89%,transparent 99.5%);
   mask-image:linear-gradient(180deg,#000 0%,#000 70%,rgba(0,0,0,.62) 89%,transparent 99.5%);
 }
-/* the lit ground is the brightest thing on the site, and the hero copy has to
-   sit on top of it: a vertical scrim, over the art but under the grain */
+/* Two things in one layer, both of which have to sit over the whole scene so
+   that sky and ground are lit and darkened as one picture -- inside the
+   landscape SVG a wash stops dead at the horizon and draws a line there.
+   First: the moonlight, falling from the moon's own corner. Second: a scrim,
+   because the lit plain is the brightest thing on the site and the hero copy
+   has to stay readable on top of it. */
 .mond-hintergrund::before{
   content:""; position:absolute; inset:0; z-index:4;
-  background:linear-gradient(180deg,
+  background:
+    radial-gradient(74% 66% at 80% 6%, hsl(226 88% 90% / .14), transparent 66%),
+    linear-gradient(180deg,
     rgba(7,11,21,.04) 0%, rgba(7,11,21,.15) 46%,
     rgba(7,11,21,.33) 74%, rgba(7,9,16,.60) 100%);
 }
@@ -230,7 +236,16 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 
 /* ---- star field ---- */
 .mh-par-himmel{ position:absolute; inset:0; z-index:1 }
-.mond-sterne{ position:absolute; inset:0; width:100%; height:100% }
+/* oversized, so the slow drift below never walks an edge into frame */
+.mond-sterne{
+  position:absolute; inset:-3%; width:106%; height:106%;
+  animation:mondZug 150s ease-in-out infinite alternate;
+  will-change:transform;
+}
+@keyframes mondZug{
+  from{ transform:translate3d(-1.1%,  .5%, 0) }
+  to  { transform:translate3d( 1.1%, -.5%, 0) }
+}
 .mond-funkeln{ animation:mondFunkeln 3.6s ease-in-out infinite alternate }
 @keyframes mondFunkeln{ from{ opacity:.15 } to{ opacity:1 } }
 
@@ -247,6 +262,24 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 @keyframes mondTwinkle{
   0%,100%{ opacity:.15; transform:scale(.6) }
   50%    { opacity:1;   transform:scale(1.15) }
+}
+
+/* a wide, soft halo in the sky behind the moon. It breathes on its own
+   period, so it never pulses in step with the moon's tighter one and the
+   sky keeps a slow, unrepeating shimmer. */
+.mond-schimmer{
+  position:absolute; z-index:1; pointer-events:none;
+  top:clamp(-70px, -3%, -20px); right:clamp(-70px, -1vw, 10px);
+  width:clamp(300px, 40vw, 620px); height:clamp(300px, 40vw, 620px);
+  border-radius:50%;
+  background:radial-gradient(circle,
+    hsl(226 90% 80% / .13) 0%, hsl(228 85% 74% / .06) 42%, transparent 72%);
+  animation:mondSchimmer 11s ease-in-out infinite alternate;
+  will-change:transform, opacity;
+}
+@keyframes mondSchimmer{
+  from{ opacity:.65; transform:scale(.94) }
+  to  { opacity:1;   transform:scale(1.06) }
 }
 
 /* ---- the moon, with a slowly breathing halo ---- */
@@ -288,10 +321,22 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   --mond-fels-hell:hsl(228 45% 78%);
   --mond-fels-dunkel:hsl(236 32% 34%);
   --mond-fern:hsl(234 30% 40% / .75);
-  --mond-dunst:hsl(232 70% 82% / .18);
+  --mond-fernst:hsl(235 28% 34% / .55);
+  --mond-dunst:hsl(232 72% 84% / .24);
 }
 .mond-land > svg{
   position:absolute; inset:0; width:100%; height:100%; overflow:visible;
+}
+/* mist along the ridgeline, drifting -- the one thing in the landscape
+   that moves, and what keeps the horizon from reading as a cut edge */
+.mond-saum{
+  animation:mondSaum 58s ease-in-out infinite alternate;
+  will-change:transform, opacity;
+}
+.mond-saum--nah{ animation-duration:79s; animation-direction:alternate-reverse }
+@keyframes mondSaum{
+  from{ transform:translateX(-34px); opacity:.72 }
+  to  { transform:translateX( 34px); opacity:1 }
 }
 
 #heroSky{

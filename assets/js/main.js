@@ -151,10 +151,10 @@
       var small = W < 300;
       buildHorizon();
       meteors.length = 0;
-      /* fewer than the old painted sky carried: against art this clean a
-         dozen at once reads as rain rather than as meteors */
-      var m = small ? Math.max(4, Math.round(W / 46))
-                    : Math.min(16, Math.max(7, Math.round(W / 54)));
+      /* sparse on purpose: the sky has its own motion now, and a meteor is
+         only an event if you have waited a moment for it */
+      var m = small ? Math.max(2, Math.round(W / 90))
+                    : Math.min(9, Math.max(4, Math.round(W / 104)));
       for (var j = 0; j < m; j++) meteors.push(spawn(true));
     }
 

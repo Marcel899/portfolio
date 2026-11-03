@@ -208,8 +208,22 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   opacity:.035; mix-blend-mode:overlay;
 }
 
+/* ---- defocus ----
+   The backdrop is thrown out of focus the way the Bloombot hero's is, but
+   layer by layer rather than on the whole scene: #heroSky sits in the middle
+   of it, and a CSS filter over an animating canvas costs about 40fps. The
+   static layers carry the blur, the meteors stay out of it.
+
+   Each layer is oversized before it is blurred, because a blur fades an
+   element out at its own edges and would otherwise draw a soft seam down
+   each side of the hero. */
+:root{ --hero-blur:5px }
+
 /* ---- star field ---- */
-.mh-par-himmel{ position:absolute; inset:0; z-index:1 }
+.mh-par-himmel{
+  position:absolute; inset:-4%; z-index:1;
+  filter:blur(var(--hero-blur));
+}
 /* oversized, so the slow drift below never walks an edge into frame */
 .mond-sterne{
   position:absolute; inset:-3%; width:106%; height:106%;
@@ -224,7 +238,10 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 @keyframes mondFunkeln{ from{ opacity:.15 } to{ opacity:1 } }
 
 /* the few larger stars that carry a glow */
-.mond-fx{ position:absolute; inset:0; z-index:1; overflow:hidden }
+.mond-fx{
+  position:absolute; inset:0; z-index:1; overflow:hidden;
+  filter:blur(calc(var(--hero-blur) * .7));
+}
 .mond-fx > i{
   position:absolute; display:block; border-radius:50%;
   background:hsl(230 100% 97%);
@@ -284,7 +301,8 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 
 /* ---- the landscape, over the meteor canvas so the ridges occlude it ---- */
 .mond-land{
-  position:absolute; left:0; right:0; bottom:0; z-index:3;
+  position:absolute; left:-3%; right:-3%; bottom:0; z-index:3;
+  filter:blur(calc(var(--hero-blur) * .85));
   height:clamp(150px, 40%, 300px);
   --mond-boden-1:hsl(229 38% 66%);
   --mond-boden-2:hsl(234 34% 30%);

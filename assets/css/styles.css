@@ -221,6 +221,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 .mond-hintergrund::before{
   content:""; position:absolute; inset:0; z-index:4;
   background:
+    radial-gradient(118% 104% at 50% 38%, transparent 54%, rgba(5,8,16,.42) 100%),
     radial-gradient(74% 66% at 80% 6%, hsl(226 88% 90% / .14), transparent 66%),
     linear-gradient(180deg,
     rgba(7,11,21,.04) 0%, rgba(7,11,21,.15) 46%,

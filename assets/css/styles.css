@@ -374,17 +374,6 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
    ========================================================= */
 /* the strip reads as the tail of the hero, not a slab under it */
 /* ---------------------------------------------------------
-   Plates
-
-   The panel recipe from the Grow A Garden 2 wiki, in this site's palette:
-   a repeating texture over a flat fill, a thick border, an outer glow, and
-   an inset highlight above an inset shadow, which together give the edge a
-   lit top lip and read as a raised slab rather than a flat box.
-
-   Everything is driven off --pc, the per-project accent, so one plate class
-   serves the blue default and all four project colours.
-   --------------------------------------------------------- */
-/* ---------------------------------------------------------
    Weld
 
    The button build from the Bloombot legal site, whose stylesheet names it
@@ -436,46 +425,19 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 .w-dark  { --wb:#3a4050; --wd:#1b1f27; --wg:0,0,0 }
 .w-dark:hover{ --wb:#454c5e }
 
-.plate{
-  position:relative; overflow:hidden; isolation:isolate;
-  border:2px solid color-mix(in srgb, var(--pc) 42%, #05080F);
-  border-radius:12px;
-  background-color:color-mix(in srgb, var(--pc) 9%, var(--surface));
-  box-shadow:
-    0 3px 6px -2px rgba(0,0,0,.5),
-    0 0 7px 1px color-mix(in srgb, var(--pc) 26%, transparent),
-    0 0 16px 4px color-mix(in srgb, var(--pc) 13%, transparent),
-    inset 0 2px 0 rgba(255,255,255,.13),
-    inset 0 -2px 0 rgba(0,0,0,.34);
-}
-/* the texture: greyscaled and held well back, so it is grain rather than
-   pattern at this size */
-/* the texture is a lattice on a neutral grey field. Grey is the no-op value
-   under mix-blend-mode:overlay, so only the bars do anything and the pattern
-   reads as engraved into the panel rather than laid over it. */
-.plate::before{
-  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
-  background-image:url("../img/weave.png?v=61");
-  background-size:46px 46px;
-  opacity:.5; mix-blend-mode:overlay;
-}
-
 .stats{ background:none }
 .stats__grid{
   display:grid; grid-template-columns:repeat(4,1fr);
-  gap:clamp(10px,1.4vw,18px);
   padding:clamp(22px,2.8vw,34px) 0 clamp(26px,3.2vw,40px);
 }
-/* each figure sits on its own slab now, which is what retires the hairline
-   rules that used to divide them */
 .stats__grid li{
-  text-align:center;
-  padding:clamp(16px,1.9vw,24px) clamp(8px,1.4vw,18px) clamp(18px,2.1vw,26px);
+  position:relative; text-align:center;
+  padding:0 clamp(10px,1.6vw,22px);
 }
-.stats__grid li:nth-child(1){ --pc:var(--gtd) }
-.stats__grid li:nth-child(2){ --pc:var(--unbox) }
-.stats__grid li:nth-child(3){ --pc:var(--sacp) }
-.stats__grid li:nth-child(4){ --pc:var(--accent) }
+.stats__grid li + li::before{
+  content:""; position:absolute; left:0; top:8px; bottom:8px; width:1px;
+  background:linear-gradient(180deg, transparent, var(--line) 30%, var(--line) 70%, transparent);
+}
 .stats__grid b{
   display:block; font-family:var(--ff-d); font-weight:700;
   font-size:clamp(23px,2.8vw,34px); letter-spacing:-.035em; line-height:1;

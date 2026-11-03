@@ -137,6 +137,14 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   transition:transform .24s cubic-bezier(.34,1.5,.64,1),
              box-shadow .24s var(--ease), background-color .22s, border-color .22s;
 }
+/* same lattice on the buttons, which is where the wiki uses it hardest */
+.btn{ position:relative; overflow:hidden; isolation:isolate }
+.btn::after{
+  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background-image:url("../img/weave.png?v=61");
+  background-size:34px 34px;
+  opacity:.34; mix-blend-mode:overlay;
+}
 .btn:hover{ transform:translateY(-2px) }
 .btn:active{ transform:translateY(2px) scale(.99); transition-duration:.07s }
 .btn svg{ width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
@@ -425,12 +433,14 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 }
 /* the texture: greyscaled and held well back, so it is grain rather than
    pattern at this size */
+/* the texture is a lattice on a neutral grey field. Grey is the no-op value
+   under mix-blend-mode:overlay, so only the bars do anything and the pattern
+   reads as engraved into the panel rather than laid over it. */
 .plate::before{
   content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72'%3E%3Cfilter id='t'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23t)'/%3E%3C/svg%3E");
-  background-size:72px 72px;
-  filter:grayscale(100%) opacity(.5);
-  mix-blend-mode:overlay;
+  background-image:url("../img/weave.png?v=61");
+  background-size:46px 46px;
+  opacity:.5; mix-blend-mode:overlay;
 }
 
 .stats{ background:none }
@@ -613,6 +623,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
    seats it on the surface. --pc already differs per project, so each
    community's badges take that community's colour for free. */
 .roles li, .comm__roles li{
+  position:relative; overflow:hidden; isolation:isolate;
   display:inline-flex; align-items:center; gap:8px;
   padding:5px 12px 6px;
   border:2px solid color-mix(in srgb, var(--pc) 52%, #05080F);
@@ -627,6 +638,13 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   color:color-mix(in srgb, var(--pc) 34%, var(--text));
   transition:transform .18s var(--ease), box-shadow .18s var(--ease);
 }
+.roles li::after, .comm__roles li::after{
+  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background-image:url("../img/weave.png?v=61");
+  background-size:30px 30px;
+  opacity:.45; mix-blend-mode:overlay;
+}
+
 /* pressed, the way the wiki's own buttons behave */
 .pinfo:hover .roles li, .comm__row:hover .comm__roles li{
   transform:translateY(-1px);

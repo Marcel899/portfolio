@@ -640,22 +640,33 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 /* --- image frame (ABOVE the info) --- */
 .slider__stage{ margin-bottom:14px }
 
-/* --- pager: the projects either side, as two dark welds --- */
+/* --- pager: the projects either side, as plain navigation. Round arrow
+   buttons like the ones on the screenshot, with the name beside them, so
+   they read as "go back / go on" and not as more project tabs. --- */
 .pager{
   display:flex; justify-content:space-between; align-items:center; gap:10px;
   margin-bottom:clamp(22px,2.8vw,30px);
 }
-.pager__step.weld{
-  display:inline-flex; align-items:center; gap:8px; min-width:0; max-width:48%;
-  padding:6px 13px; border-radius:10px;
-  font-family:var(--ff-d); font-size:14px; font-weight:700; letter-spacing:-.01em;
+.pager__step{
+  display:inline-flex; align-items:center; gap:11px; min-width:0; max-width:48%;
+  padding:4px 2px; color:var(--text-2);
+  font-family:var(--ff-d); font-size:15px; font-weight:500; letter-spacing:-.015em;
+  transition:color .2s var(--ease);
 }
-.pager__step::before, .pager__step::after, .pager__step .weld__fx{ border-radius:7px }
-.pager__step img{ flex:0 0 auto; width:22px; height:22px; border-radius:6px; box-shadow:0 1px 2px rgba(0,0,0,.4) }
-.pager__step span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
-.pager__step svg{ flex:0 0 auto; width:15px; height:15px; transition:transform .35s cubic-bezier(.3,1.75,.5,1) }
-.pager__step--prev:hover svg{ transform:translateX(-3px) }
-.pager__step--next:hover svg{ transform:translateX(3px) }
+.pager__name{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.pager__arrow{
+  flex:0 0 auto; width:36px; height:36px; border-radius:50%;
+  display:grid; place-items:center;
+  border:1px solid var(--line-2); background:rgba(255,255,255,.03);
+  transition:background-color .2s var(--ease), border-color .2s var(--ease),
+             transform .4s cubic-bezier(.3,1.75,.5,1);
+}
+.pager__arrow svg{ width:16px; height:16px; transition:transform .35s cubic-bezier(.3,1.75,.5,1) }
+.pager__step:hover{ color:var(--text) }
+.pager__step:hover .pager__arrow{ background:var(--pc); border-color:var(--pc); color:var(--accent-ink) }
+.pager__step--prev:hover svg{ transform:translateX(-2px) }
+.pager__step--next:hover svg{ transform:translateX(2px) }
+.pager__step:active .pager__arrow{ transform:scale(.88); transition-duration:.2s, .2s, .07s }
 
 .frame{
   position:relative; border-radius:var(--r-lg);
@@ -1357,8 +1368,8 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
   .ptab img{ width:24px; height:24px; border-radius:6px }
 
   /* the pager keeps its words short on a phone */
-  .pager__step.weld{ font-size:13px; padding:6px 10px; gap:6px }
-  .pager__step img{ width:20px; height:20px }
+  .pager__step{ font-size:14px; gap:9px }
+  .pager__arrow{ width:40px; height:40px }
 
   /* smaller and tucked further in so it covers less of the page */
   .totop{ width:42px; height:42px; border-radius:13px; right:14px; bottom:14px }

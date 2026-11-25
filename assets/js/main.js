@@ -617,7 +617,7 @@
     w.addEventListener('keydown', function (e) {
       if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) {
         press();
-        setTimeout(function () { release(true); }, 110);
+        setTimeout(function () { release(true); }, 170);
       }
     });
   });

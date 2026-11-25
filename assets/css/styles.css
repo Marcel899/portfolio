@@ -36,6 +36,12 @@
   --r-lg: 20px;
 
   --ease: cubic-bezier(.22,.61,.36,1);
+  /* motion: --glide eases in with no bounce, --spring settles with only a
+     hint of overshoot, --press is a cushioned push. All the buttons share
+     them, so they move the same way everywhere. */
+  --glide:  cubic-bezier(.22,.61,.36,1);
+  --spring: cubic-bezier(.3,1.22,.45,1);
+  --press:  cubic-bezier(.33,0,.15,1);
 
   --chip:      #101728;
   --chip-line: #24314C;
@@ -136,12 +142,12 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   font-family:var(--ff-d); font-weight:600; font-size:15px; letter-spacing:-.01em;
   white-space:nowrap;
   transform:translateY(0);
-  transition:transform .24s cubic-bezier(.34,1.5,.64,1),
+  transition:transform .24s var(--spring),
              box-shadow .24s var(--ease), background-color .22s, border-color .22s;
 }
 /* same lattice on the buttons, which is where the wiki uses it hardest */
 .btn:hover{ transform:translateY(-2px) }
-.btn:active{ transform:translateY(2px) scale(.99); transition-duration:.07s }
+.btn:active{ transform:translateY(2px) scale(.99); transition-duration:.16s }
 .btn svg{ width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
 .btn--sm{ padding:9px 15px; font-size:14px; border-radius:10px }
 .btn--lg{ padding:17px 30px; font-size:16.5px }
@@ -386,7 +392,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 .hero__icons li{ position:relative }
 .hero__icons img{
   width:34px; height:34px; border-radius:10px; border:1px solid var(--line);
-  opacity:.92; transition:opacity .25s var(--ease), transform .35s cubic-bezier(.3,1.75,.5,1);
+  opacity:.92; transition:opacity .25s var(--ease), transform .35s var(--spring);
 }
 .hero__icons li:hover img{ opacity:1; transform:translateY(-4px) scale(1.08) }
 /* the name of each community, on hover */
@@ -398,7 +404,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   background:rgba(12,17,32,.94); border:1px solid var(--line-2);
   box-shadow:0 8px 22px rgba(0,0,0,.45);
   opacity:0; transform:translate(-50%,-5px);
-  transition:opacity .2s var(--ease), transform .3s cubic-bezier(.3,1.75,.5,1);
+  transition:opacity .2s var(--ease), transform .3s var(--spring);
 }
 .hero__icons li:hover::after{ opacity:1; transform:translate(-50%,0) }
 
@@ -452,7 +458,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
    --------------------------------------------------------- */
 :is(a,button).weld{
   --lift:0px; --ledge:4px;
-  --wr:rgba(var(--wg),.8);                  /* click ring */
+  --wr:rgba(var(--wg),.55);                 /* click ring */
   transform:translateY(var(--lift));
   box-shadow:
     0 var(--ledge) 0 var(--wd),
@@ -464,26 +470,35 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   -webkit-tap-highlight-color:transparent;
   touch-action:manipulation;
   user-select:none; -webkit-user-select:none;
+  /* this is the way back to rest (pointer leaving, or letting go):
+     a soft settle */
   transition:
-    transform .42s cubic-bezier(.3,1.75,.5,1),
-    box-shadow .42s cubic-bezier(.3,1.75,.5,1),
-    background-color .2s, filter .2s;
+    transform .55s var(--spring),
+    box-shadow .55s var(--spring),
+    background-color .35s var(--glide), filter .35s var(--glide);
 }
 /* transform is restated in each state so a generic .btn:hover / :active
    transform can't win over the variable-driven one */
 :is(a,button).weld:hover{
-  --lift:-3px; --ledge:7px;
+  --lift:-2px; --ledge:6px;
   transform:translateY(var(--lift));
-  filter:brightness(1.07) saturate(1.06);
+  filter:brightness(1.05) saturate(1.04);
+  /* on the way up: a plain glide, no bounce */
+  transition:
+    transform .35s var(--glide),
+    box-shadow .35s var(--glide),
+    background-color .35s var(--glide), filter .35s var(--glide);
 }
-/* pressed: straight down, fast, no spring on the way in */
+/* pressed: down onto the ledge, quick but cushioned */
 :is(a,button).weld:active,
 :is(a,button).weld.is-pressed{
   --lift:4px; --ledge:0px;
   transform:translateY(var(--lift));
-  filter:brightness(.95);
-  transition-duration:.07s, .07s, .2s, .07s;
-  transition-timing-function:cubic-bezier(.2,.8,.3,1);
+  filter:brightness(.96);
+  transition:
+    transform .16s var(--press),
+    box-shadow .16s var(--press),
+    background-color .2s var(--glide), filter .2s var(--glide);
 }
 :is(a,button).weld:active::after,
 :is(a,button).weld.is-pressed::after{ opacity:.35 }
@@ -511,7 +526,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 @media (hover:hover){
   :is(a,button).weld:hover .weld__shine{
     background-position:-5% 0;
-    transition:background-position .75s cubic-bezier(.22,.61,.36,1);
+    transition:background-position 1s var(--glide);
   }
 }
 
@@ -521,9 +536,9 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   position:absolute; z-index:-1; pointer-events:none;
   width:var(--d); height:var(--d); margin:calc(var(--d) / -2) 0 0 calc(var(--d) / -2);
   border-radius:50%;
-  background:radial-gradient(circle, rgba(255,255,255,.62) 0%, rgba(255,255,255,.4) 30%, rgba(255,255,255,.16) 52%, rgba(255,255,255,0) 70%);
+  background:radial-gradient(circle, rgba(255,255,255,.45) 0%, rgba(255,255,255,.28) 30%, rgba(255,255,255,.1) 52%, rgba(255,255,255,0) 70%);
   transform:scale(0); opacity:1;
-  animation:weldRipple .6s cubic-bezier(.22,.61,.36,1) forwards;
+  animation:weldRipple .8s var(--glide) forwards;
 }
 @keyframes weldRipple{
   0%  { transform:scale(0);   opacity:1 }
@@ -531,10 +546,10 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   100%{ transform:scale(1);   opacity:0 }
 }
 
-:is(a,button).weld.is-ring{ animation:weldRing .55s cubic-bezier(.22,.61,.36,1) }
+:is(a,button).weld.is-ring{ animation:weldRing .8s var(--glide) }
 @keyframes weldRing{
   from{ outline:2px solid var(--wr); outline-offset:0 }
-  to  { outline:2px solid transparent; outline-offset:12px }
+  to  { outline:2px solid transparent; outline-offset:9px }
 }
 /* the site's own palette, kept to its values */
 .w-green { --wb:#28a828; --wd:#145c14; --wg:40,200,40 }
@@ -659,14 +674,14 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   display:grid; place-items:center;
   border:1px solid var(--line-2); background:rgba(255,255,255,.03);
   transition:background-color .2s var(--ease), border-color .2s var(--ease),
-             transform .4s cubic-bezier(.3,1.75,.5,1);
+             transform .4s var(--spring);
 }
-.pager__arrow svg{ width:16px; height:16px; transition:transform .35s cubic-bezier(.3,1.75,.5,1) }
+.pager__arrow svg{ width:16px; height:16px; transition:transform .35s var(--spring) }
 .pager__step:hover{ color:var(--text) }
 .pager__step:hover .pager__arrow{ background:var(--pc); border-color:var(--pc); color:var(--accent-ink) }
 .pager__step--prev:hover svg{ transform:translateX(-2px) }
 .pager__step--next:hover svg{ transform:translateX(2px) }
-.pager__step:active .pager__arrow{ transform:scale(.88); transition-duration:.2s, .2s, .07s }
+.pager__step:active .pager__arrow{ transform:scale(.9); transition-duration:.2s, .2s, .16s }
 
 .frame{
   position:relative; border-radius:var(--r-lg);
@@ -724,7 +739,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   display:grid; place-items:center;
   background:rgba(10,12,10,.6); border:1px solid var(--line-2);
   backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
-  opacity:0; transition:opacity .3s, background .2s, border-color .2s, transform .4s cubic-bezier(.3,1.75,.5,1);
+  opacity:0; transition:opacity .3s, background .2s, border-color .2s, transform .4s var(--spring);
   z-index:3;
 }
 .frame__nav svg{ width:19px; height:19px; fill:none; stroke:var(--text); stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round }
@@ -734,9 +749,9 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 .frame__nav:hover{ background:var(--pc); border-color:var(--pc) }
 .frame__nav:hover svg{ stroke:var(--accent-ink) }
 .frame__nav:hover{ transform:translateY(-50%) scale(1.08) }
-.frame__nav:active{ transform:translateY(-50%) scale(.86); transition-duration:.3s, .2s, .2s, .07s }
+.frame__nav:active{ transform:translateY(-50%) scale(.9); transition-duration:.3s, .2s, .2s, .16s }
 /* the chevron leans the way it will take you */
-.frame__nav svg{ transition:transform .35s cubic-bezier(.3,1.75,.5,1) }
+.frame__nav svg{ transition:transform .35s var(--spring) }
 .frame__nav--prev:hover svg{ transform:translateX(-2px) }
 .frame__nav--next:hover svg{ transform:translateX(2px) }
 
@@ -911,7 +926,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 }
 .tile:hover .tile__meta em{ color:var(--text-2) }
 .tile:hover{ transform:translateY(-4px); border-color:var(--line-2); box-shadow:0 20px 44px rgba(0,0,0,.5) }
-.tile:active{ transform:translateY(-1px) scale(.975); transition-duration:.08s }
+.tile:active{ transform:translateY(-2px) scale(.985); transition-duration:.18s }
 .tile:hover img{ transform:scale(1.045); filter:saturate(1.05) }
 .tile:hover .tile__meta{ transform:translateY(0); opacity:1 }
 .tile.is-hidden{ display:none }
@@ -954,7 +969,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   display:flex; align-items:center; gap:8px; margin:22px auto 0;
   padding:9px 16px; border-radius:10px; border:1px solid var(--line-2);
   font-size:14px; font-weight:500; color:var(--text-2);
-  transition:color .2s var(--ease), border-color .2s var(--ease), transform .4s cubic-bezier(.3,1.75,.5,1);
+  transition:color .2s var(--ease), border-color .2s var(--ease), transform .4s var(--spring);
 }
 .gal__less:hover{ color:var(--text); border-color:var(--accent); transform:translateY(-2px) }
 .gal__less:active{ transform:scale(.97) }
@@ -1058,7 +1073,7 @@ a.comm__meta:hover{ color:var(--pc) }
   content:""; position:absolute; left:0; top:10px; bottom:10px; width:2px;
   border-radius:2px; background:var(--accent);
   transform:scaleY(0); transform-origin:50% 50%;
-  transition:transform .42s cubic-bezier(.34,1.45,.64,1);
+  transition:transform .42s var(--spring);
 }
 /* fades out to the right instead of ending on a hard edge */
 .srv__row:hover{ background:rgba(255,255,255,.025) }
@@ -1072,7 +1087,7 @@ a.comm__meta:hover{ color:var(--pc) }
 .srv__row h3 img{
   flex:0 0 auto; width:26px; height:26px;
   filter:drop-shadow(0 2px 2px rgba(0,0,0,.45));
-  transition:transform .4s cubic-bezier(.3,1.75,.5,1);
+  transition:transform .4s var(--spring);
 }
 .srv__row:hover h3 img{ transform:rotate(-8deg) scale(1.1) }
 .srv__row p{
@@ -1108,7 +1123,7 @@ a.comm__meta:hover{ color:var(--pc) }
   mask-image:linear-gradient(180deg,#000 74%,transparent 98%);
   filter:drop-shadow(0 14px 22px rgba(0,0,0,.45));
   transform-origin:50% 100%;
-  transition:transform .5s cubic-bezier(.3,1.75,.5,1);
+  transition:transform .5s var(--spring);
 }
 .about__me:hover img{ transform:translateY(-4px) rotate(-1.5deg) }
 .about__text{ max-width:58ch }
@@ -1197,9 +1212,9 @@ a.comm__meta:hover{ color:var(--pc) }
 .totop.weld{
   opacity:0; transform:translateY(16px) scale(.8); pointer-events:none;
   transition:
-    transform .42s cubic-bezier(.3,1.75,.5,1),
-    box-shadow .42s cubic-bezier(.3,1.75,.5,1),
-    background-color .2s, filter .2s, opacity .28s var(--ease);
+    transform .55s var(--spring),
+    box-shadow .55s var(--spring),
+    background-color .35s var(--glide), filter .35s var(--glide), opacity .35s var(--glide);
 }
 .totop.weld.is-on{ opacity:1; transform:translateY(var(--lift)); pointer-events:auto }
 .totop::before, .totop::after, .totop .weld__fx{ border-radius:9px }
@@ -1210,7 +1225,7 @@ a.comm__meta:hover{ color:var(--pc) }
 }
 .totop svg{
   width:20px; height:20px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.35));
-  transition:transform .35s cubic-bezier(.3,1.75,.5,1);
+  transition:transform .35s var(--spring);
 }
 .totop:hover svg{ transform:translateY(-2px) }
 /* on click the arrow shoots out of the top and comes back in from below */
@@ -1304,7 +1319,7 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
   display:grid; place-items:center; z-index:2;
   background:rgba(255,255,255,.07); border:1px solid var(--line-2);
   backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
-  transition:background .2s, transform .4s cubic-bezier(.3,1.75,.5,1);
+  transition:background .2s, transform .4s var(--spring);
 }
 .lb__close svg,.lb__nav svg{ width:19px; height:19px; fill:none; stroke:var(--text); stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round }
 .lb__close{ top:20px; right:20px }
@@ -1313,8 +1328,8 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
 .lb__close:hover,.lb__nav:hover{ background:var(--accent) }
 .lb__close:hover svg,.lb__nav:hover svg{ stroke:var(--accent-ink) }
 .lb__close:hover,.lb__nav:hover{ transform:scale(1.08) }
-.lb__close:active,.lb__nav:active{ transform:scale(.86); transition-duration:.2s, .07s }
-.lb__close svg{ transition:transform .4s cubic-bezier(.3,1.75,.5,1) }
+.lb__close:active,.lb__nav:active{ transform:scale(.9); transition-duration:.2s, .16s }
+.lb__close svg{ transition:transform .4s var(--spring) }
 .lb__close:hover svg{ transform:rotate(90deg) }
 
 /* =========================================================

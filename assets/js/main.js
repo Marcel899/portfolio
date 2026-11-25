@@ -229,7 +229,6 @@
     var tabs   = $$('.ptab', slider);
     var infos  = $$('.pinfo', slider);
     var shots  = $$('.shot', slider);
-    var bar    = $('#sliderBar');
     var frame  = $('#frame');
     var view   = $('#frameView');
     var urlEl  = $('#frameUrl');
@@ -247,11 +246,24 @@
     var current = 0;
     var counted = {};
 
-    function moveBar() {
-      var t = tabs[current];
-      if (!bar || !t) return;
-      bar.style.width = t.offsetWidth + 'px';
-      bar.style.transform = 'translateX(' + t.offsetLeft + 'px)';
+    /* the pager under the frame: previous and next by name, a dot per
+       project, and where you are */
+    var NAMES = tabs.map(function (t) { var b = $('.ptab__txt b', t); return b ? b.textContent : ''; });
+    var pgPrev = $('#pgPrev'), pgNext = $('#pgNext');
+    var pgPrevName = $('#pgPrevName'), pgNextName = $('#pgNextName'), pgCount = $('#pgCount');
+    var dots = $$('.pager__dot', slider);
+    function syncPager() {
+      var n = tabs.length;
+      var p = (current - 1 + n) % n, q = (current + 1) % n;
+      if (pgPrevName) pgPrevName.textContent = NAMES[p];
+      if (pgNextName) pgNextName.textContent = NAMES[q];
+      if (pgPrev) pgPrev.setAttribute('aria-label', 'Previous project: ' + NAMES[p]);
+      if (pgNext) pgNext.setAttribute('aria-label', 'Next project: ' + NAMES[q]);
+      if (pgCount) pgCount.textContent = (current + 1) + ' / ' + n;
+      dots.forEach(function (d, k) {
+        d.classList.toggle('is-on', k === current);
+        if (k === current) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current');
+      });
     }
 
     /* hover-scroll distance for the active screenshot */
@@ -309,10 +321,9 @@
       shots.forEach(function (s, n) { s.classList.toggle('is-on', n === i); });
 
       slider.style.setProperty('--pc', COLORS[i]);
-      if (bar) bar.style.background = COLORS[i];
       if (urlEl) urlEl.textContent = URLS[i];
 
-      moveBar();
+      syncPager();
       measure();
 
       if (!counted[i] && slider.getBoundingClientRect().top < window.innerHeight) {
@@ -320,31 +331,18 @@
         countUp(infos[i]);
       }
       if (focusTab) tabs[i].focus();
-
-      /* keep the active tab in view on narrow screens */
-      if (tabsWrap && tabsWrap.scrollWidth > tabsWrap.clientWidth) {
-        var t = tabs[i];
-        var left = t.offsetLeft - (tabsWrap.clientWidth - t.offsetWidth) / 2;
-        tabsWrap.scrollTo({ left: Math.max(0, left), behavior: reduce ? 'auto' : 'smooth' });
-      }
     }
 
     tabs.forEach(function (t) {
       t.addEventListener('click', function () { go(parseInt(t.dataset.i, 10)); });
     });
-
-    /* edge fades only on the side that actually has hidden tabs */
-    function tabEdges() {
-      var max = tabsWrap.scrollWidth - tabsWrap.clientWidth;
-      tabsWrap.classList.toggle('can-left', max > 1 && tabsWrap.scrollLeft > 2);
-      tabsWrap.classList.toggle('can-right', max > 1 && tabsWrap.scrollLeft < max - 2);
-    }
-    tabsWrap.addEventListener('scroll', tabEdges, { passive: true });
-    window.addEventListener('resize', tabEdges);
-    window.addEventListener('load', tabEdges);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(tabEdges);
     $('#prev').addEventListener('click', function () { go(current - 1); });
     $('#next').addEventListener('click', function () { go(current + 1); });
+    if (pgPrev) pgPrev.addEventListener('click', function () { go(current - 1); });
+    if (pgNext) pgNext.addEventListener('click', function () { go(current + 1); });
+    dots.forEach(function (d) {
+      d.addEventListener('click', function () { go(parseInt(d.dataset.i, 10)); });
+    });
 
     /* roving tablist keys */
     tabsWrap.addEventListener('keydown', function (e) {
@@ -386,10 +384,8 @@
       if (img.complete) return;
       img.addEventListener('load', measure, { once: true });
     });
-    window.addEventListener('resize', function () { moveBar(); measure(); });
-    window.addEventListener('load', function () { moveBar(); measure(); });
-
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveBar);
+    window.addEventListener('resize', measure);
+    window.addEventListener('load', measure);
 
     /* first count-up when the slider scrolls into view */
     if ('IntersectionObserver' in window) {
@@ -405,10 +401,36 @@
   }
 
   /* ---------------------------------------------------------
-     Gallery filters
+     Gallery: ten up front, the rest behind "+N more"
      --------------------------------------------------------- */
-  var tiles = $$('.tile');
-  function shown() { return tiles.filter(function (t) { return !t.classList.contains('is-hidden'); }); }
+  var tiles = $$('.tile:not(.tile--more)');
+  /* the lightbox walks every screen, folded away or not */
+  function shown() { return tiles; }
+
+  var galGrid = $('#galGrid'), galMore = $('#galMore'), galLess = $('#galLess');
+  $$('.tile--extra').forEach(function (t, n) { t.style.setProperty('--n', n); });
+  if (galGrid && galMore) {
+    galMore.addEventListener('click', function () {
+      galGrid.classList.add('is-open');
+      galMore.setAttribute('aria-expanded', 'true');
+      if (galLess) galLess.hidden = false;
+      /* keyboard users land on the first screen that just appeared */
+      var first = $('.tile--extra', galGrid);
+      if (first) first.focus({ preventScroll: true });
+    });
+  }
+  if (galGrid && galLess) {
+    galLess.addEventListener('click', function () {
+      galGrid.classList.remove('is-open');
+      if (galMore) { galMore.setAttribute('aria-expanded', 'false'); galMore.focus({ preventScroll: true }); }
+      galLess.hidden = true;
+      /* the page just got shorter under the reader: bring the gallery back */
+      var g = $('#gallery');
+      if (g && g.getBoundingClientRect().top < 0) {
+        window.scrollTo({ top: g.getBoundingClientRect().top + window.scrollY - 20, behavior: reduce ? 'auto' : 'smooth' });
+      }
+    });
+  }
 
   /* fade each screenshot in once it has actually arrived (styles.css keeps
      the tile shimmering until then). Images that loaded before this ran are

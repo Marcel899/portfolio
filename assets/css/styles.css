@@ -1541,3 +1541,18 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
   .mond-fx{ display:none }
   *,*::before,*::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important }
 }
+
+/* Bloombot and Galaxy Values are cut-out logos, not square game icons:
+   the borders, square shadows and rounded frames the game icons get drew
+   a stray box (and a thin line) around them. They get a shadow that
+   follows their own shape instead. Last in the file so it wins
+   everywhere the icons appear. */
+img.is-logo{
+  border:0 !important; border-radius:0 !important; background:none !important;
+  box-shadow:none !important;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.45));
+}
+.ptab img.is-logo{ filter:drop-shadow(0 1px 2px rgba(0,0,0,.4)) }
+.ptab:not(.is-on) img.is-logo{ filter:grayscale(.75) drop-shadow(0 1px 2px rgba(0,0,0,.4)) }
+.ptab:not(.is-on):is(:hover,.tap) img.is-logo{ filter:drop-shadow(0 1px 2px rgba(0,0,0,.4)) }
+

@@ -248,7 +248,8 @@
 
     /* the pager under the frame: previous and next by name, a dot per
        project, and where you are */
-    var NAMES = tabs.map(function (t) { var b = $('.ptab__txt b', t); return b ? b.textContent : ''; });
+    /* read before the press effects add their own spans to each tab */
+    var NAMES = tabs.map(function (t) { return t.textContent.replace(/\s+/g, ' ').trim(); });
     var pgPrev = $('#pgPrev'), pgNext = $('#pgNext');
     var pgPrevName = $('#pgPrevName'), pgNextName = $('#pgNextName'), pgCount = $('#pgCount');
     var dots = $$('.pager__dot', slider);

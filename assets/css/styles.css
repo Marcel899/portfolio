@@ -599,62 +599,43 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
    ========================================================= */
 .slider{ --pc:var(--gtd) }
 
-/* Six projects as a grid of cards rather than one long row of tabs: every
-   project is visible at once, each says what kind of work it is, and nothing
-   has to scroll sideways. Six across on desktop, three by two below that. */
+/* Project tabs are welds, the same lattice-textured build as the hero
+   buttons and the role badges. The one on screen is a weld in that
+   project's own colour, standing on its ledge; the rest are dark welds with
+   a greyed icon that warm towards their colour under the pointer. They
+   press like every other button (see Press). --pg is the project colour
+   as bare rgb channels, for the glow. */
 .slider__tabs{
-  display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:10px;
-  margin-bottom:22px;
+  display:flex; flex-wrap:wrap; gap:14px 8px;
+  margin-bottom:26px; padding-bottom:4px;
 }
-.ptab{
-  position:relative; min-width:0;
-  display:flex; align-items:center; gap:11px;
-  padding:11px 12px; text-align:left;
-  border:1px solid var(--line); border-radius:13px;
-  background:rgba(255,255,255,.018);
-  color:var(--muted);
-  transition:border-color .25s var(--ease), background-color .25s var(--ease),
-             color .25s var(--ease), box-shadow .3s var(--ease),
-             transform .4s cubic-bezier(.3,1.75,.5,1);
+/* they share the row out between them, so it ends square rather than ragged */
+.ptab.weld{
+  --wb:#272c38; --wd:#12151c; --wg:0,0,0;
+  flex:1 1 auto; justify-content:center;
+  display:inline-flex; align-items:center; gap:8px;
+  padding:6px 12px 6px 7px; border-radius:10px;
+  font-family:var(--ff-d); font-weight:700; font-size:13.5px; letter-spacing:-.01em;
+  color:rgba(255,255,255,.66);
 }
+.ptab::before, .ptab::after, .ptab .weld__fx{ border-radius:7px }
 .ptab img{
-  flex:0 0 auto; width:32px; height:32px; border-radius:9px;
-  opacity:.5; filter:grayscale(.7);
-  transition:opacity .3s var(--ease), filter .3s var(--ease),
-             transform .4s cubic-bezier(.3,1.75,.5,1);
+  flex:0 0 auto; width:26px; height:26px; border-radius:7px;
+  opacity:.6; filter:grayscale(.75);
+  box-shadow:0 1px 2px rgba(0,0,0,.4);
+  transition:opacity .25s var(--ease), filter .25s var(--ease);
 }
-.ptab__txt{ display:flex; flex-direction:column; gap:3px; min-width:0 }
-.ptab__txt b{
-  font-family:var(--ff-d); font-weight:600; font-size:13.5px; line-height:1.2;
-  letter-spacing:-.015em; color:inherit;
-  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+.ptab.weld:hover{ --wb:color-mix(in srgb, var(--pc) 24%, #272c38); color:#fff }
+.ptab:hover img{ opacity:1; filter:none }
+.ptab.weld.is-on{
+  --wb:color-mix(in srgb, var(--pc) 86%, #000);
+  --wd:color-mix(in srgb, var(--pc) 34%, #000);
+  --wg:var(--pg);
+  color:#fff;
+  /* white on the yellow and green needs the heavier shadow the badges use */
+  text-shadow:0 1px 2px rgba(0,0,0,.55), 0 0 3px rgba(0,0,0,.35);
 }
-.ptab__txt small{
-  font-family:var(--ff-m); font-size:9.5px; letter-spacing:.09em; text-transform:uppercase;
-  color:var(--muted); opacity:.8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-.ptab:hover{
-  color:var(--text-2); transform:translateY(-2px);
-  border-color:color-mix(in srgb, var(--pc) 30%, var(--line));
-  background:color-mix(in srgb, var(--pc) 5%, transparent);
-}
-.ptab:hover img{ opacity:.9; filter:grayscale(.15) }
-.ptab:active{ transform:translateY(0) scale(.97); transition-duration:.25s, .25s, .25s, .3s, .07s }
-/* the one on screen: lit in its own colour, with a bar along the bottom */
-.ptab.is-on{
-  color:var(--text);
-  border-color:color-mix(in srgb, var(--pc) 60%, var(--line));
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--pc) 14%, transparent), color-mix(in srgb, var(--pc) 4%, transparent));
-  box-shadow:0 10px 26px -12px color-mix(in srgb, var(--pc) 55%, transparent),
-             inset 0 1px 0 rgba(255,255,255,.06);
-}
-.ptab.is-on::after{
-  content:""; position:absolute; left:14px; right:14px; bottom:-1px; height:2px;
-  border-radius:2px; background:var(--pc);
-}
-.ptab.is-on img{ opacity:1; filter:none; transform:scale(1.06) }
-.ptab.is-on .ptab__txt small{ color:color-mix(in srgb, var(--pc) 70%, var(--text-2)); opacity:1 }
+.ptab.is-on img{ opacity:1; filter:none }
 
 /* --- image frame (ABOVE the info) --- */
 .slider__stage{ margin-bottom:14px }
@@ -1378,7 +1359,8 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
    RESPONSIVE
    ========================================================= */
 @media (max-width:1080px){
-  .slider__tabs{ grid-template-columns:repeat(3, minmax(0,1fr)) }
+  /* below a full row, an even grid instead of stretched leftovers */
+  .slider__tabs{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)) }
   .pinfo{ grid-template-columns:1fr; gap:22px }
   .pstats{
     grid-column:1; grid-row:auto;
@@ -1415,13 +1397,13 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
 }
 
 @media (max-width:560px){
-  /* cards stand up: icon over name, three to a row */
-  .slider__tabs{ gap:8px }
-  .ptab{ flex-direction:column; justify-content:flex-start; gap:8px; padding:12px 8px 11px; text-align:center }
-  .ptab img{ width:38px; height:38px; border-radius:11px }
-  .ptab__txt{ align-items:center; width:100% }
-  .ptab__txt b{ font-size:12.5px }
-  .ptab__txt small{ font-size:8.5px; letter-spacing:.06em; max-width:100% }
+  /* two to a row on a phone; long names wrap onto a second line */
+  .slider__tabs{ grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px 8px }
+  .ptab.weld{
+    justify-content:flex-start; text-align:left; line-height:1.15;
+    font-size:12.5px; padding:6px 9px 6px 6px; gap:7px;
+  }
+  .ptab img{ width:24px; height:24px; border-radius:6px }
 
   /* the pager keeps its words short on a phone */
   .pager{ gap:6px }

@@ -36,7 +36,7 @@ assets/work/          wiki and site screenshots (*.webp full size, *-t.webp thum
 assets/img/           weave.png (the lattice on plates, badges and buttons), og.jpg (link preview)
 assets/icons/         game, server and profile icons
 assets/icons/roles/   role badges used in the role chips
-assets/icons/ui/      link icons drawn in the badge style (website, bot, Discord, controller)
+assets/icons/ui/      icons drawn in the badge style (website, bot, Discord, controller, member)
 ```
 
 

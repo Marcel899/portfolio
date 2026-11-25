@@ -221,6 +221,21 @@
   })();
 
   /* ---------------------------------------------------------
+     Hero name: switch to the masked, GPU-only gradient once the mask image
+     is in (styles.css explains why)
+     --------------------------------------------------------- */
+  (function () {
+    var name = $('.hero__name'), fx = $('.hero__fx');
+    if (!name || !fx) return;
+    var src = (getComputedStyle(fx).webkitMaskImage || getComputedStyle(fx).maskImage || '').match(/url\(["']?([^"')]+)["']?\)/);
+    if (!src) return;
+    var im = new Image();
+    im.onload = function () { name.classList.add('fx-ready'); };
+    im.src = src[1];
+    if (im.complete && im.naturalWidth) name.classList.add('fx-ready');
+  })();
+
+  /* ---------------------------------------------------------
      Project slider
      --------------------------------------------------------- */
   var slider = $('#slider');

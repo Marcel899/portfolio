@@ -357,25 +357,53 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 }
 /* The name in a galaxy gradient: pale blue, violet, pink and cyan, the
    colours of the moon scene and the avatar's sky, drifting slowly sideways.
-   Two layers, both clipped to the letters: a fixed white sheen on top so
-   the strokes keep a lit upper edge, and the colour band underneath, which
-   is a seamless tile (it starts and ends on the same colour) moved by
-   exactly one tile per loop, so there is never a jump. The tints are light
-   on purpose, to stay crisp against the night sky. */
+
+   Done so the browser never has to repaint it. Animating a gradient that
+   is clipped to text (background-clip:text) re-rasterises the letters, and
+   the hero around them, on every frame, which made the buttons under the
+   name lag. Instead .hero__fx is a layer masked to the shape of the name
+   (assets/img/name-mask.png, rendered from this exact font, size and
+   spacing) with a wide colour strip inside it that only moves by
+   transform, which the graphics card does on its own.
+
+   The heading's own text keeps the same gradient, still, so the name reads
+   correctly before the mask arrives and for anything that ignores the
+   overlay; main.js adds .fx-ready once the mask has loaded, and the text
+   underneath steps aside so the two never double up at the edges. */
 .hero__name{
+  position:relative;
   font-size:clamp(42px,7.6vw,88px); font-weight:700; letter-spacing:-.045em; line-height:1;
-  /* room for descenders and the drop shadow inside the clipped box */
   padding:0 .04em .06em;
   background:
     linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.12) 42%, rgba(255,255,255,0) 60%) 0 0 / 100% 100% no-repeat,
-    linear-gradient(90deg, #c4d4ff 0%, #a88bff 22%, #ff9fe0 44%, #8fe6ff 68%, #b6a4ff 84%, #c4d4ff 100%) 0% 50% / 200% 100% repeat-x;
+    linear-gradient(90deg, #c4d4ff 0%, #a88bff 22%, #ff9fe0 44%, #8fe6ff 68%, #b6a4ff 84%, #c4d4ff 100%) 0 50% / 200% 100% repeat-x;
   -webkit-background-clip:text; background-clip:text; color:transparent;
-  filter:drop-shadow(0 2px 14px rgba(130,110,255,.22));
+}
+.hero__name.fx-ready{ background:none }
+.hero__fx{
+  position:absolute; inset:0; overflow:hidden; pointer-events:none;
+  /* sized in em (the mask was rendered at 360px and measured 1927 x 382),
+     so it scales with the font and never stretches if the box rounds */
+  -webkit-mask:url("../img/name-mask.png?v=77") 0 0 / 5.353em 1.06em no-repeat;
+  mask:url("../img/name-mask.png?v=77") 0 0 / 5.353em 1.06em no-repeat;
+}
+.hero__name:not(.fx-ready) .hero__fx{ visibility:hidden }
+/* two copies of a seamless colour tile side by side, slid left by exactly
+   one copy per loop, so the drift never jumps */
+.hero__fx::before{
+  content:""; position:absolute; top:0; bottom:0; left:0; width:200%;
+  background:linear-gradient(90deg, #c4d4ff 0%, #a88bff 22%, #ff9fe0 44%, #8fe6ff 68%, #b6a4ff 84%, #c4d4ff 100%) 0 0 / 50% 100% repeat-x;
   animation:galaxyDrift 14s linear infinite;
+  will-change:transform;
+}
+/* the white sheen along the top of the letters stays put */
+.hero__fx::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.12) 42%, rgba(255,255,255,0) 60%);
 }
 @keyframes galaxyDrift{
-  from{ background-position:0 0, 0% 50% }
-  to  { background-position:0 0, 200% 50% }
+  from{ transform:translate3d(0,0,0) }
+  to  { transform:translate3d(-50%,0,0) }
 }
 .hero__aka{
   margin-top:12px; font-family:var(--ff-m); font-size:12px;

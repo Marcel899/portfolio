@@ -585,21 +585,28 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 .slider{ --pc:var(--gtd) }
 
 .slider__tabs{
-  position:relative; display:flex; gap:clamp(8px,2.2vw,26px);
+  position:relative; display:flex; gap:clamp(8px,1.6vw,22px);
   padding-bottom:16px; margin-bottom:24px;
   border-bottom:1px solid var(--line);
   overflow-x:auto; scrollbar-width:none;
 }
 .slider__tabs::-webkit-scrollbar{ display:none }
+/* when the row is wider than the page it scrolls, and fades out on whichever
+   side has more tabs hidden (main.js sets can-left / can-right) */
+.slider__tabs.can-right{ -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 56px),transparent); mask-image:linear-gradient(90deg,#000 calc(100% - 56px),transparent) }
+.slider__tabs.can-left{ -webkit-mask-image:linear-gradient(90deg,transparent,#000 56px); mask-image:linear-gradient(90deg,transparent,#000 56px) }
+.slider__tabs.can-left.can-right{ -webkit-mask-image:linear-gradient(90deg,transparent,#000 56px,#000 calc(100% - 56px),transparent); mask-image:linear-gradient(90deg,transparent,#000 56px,#000 calc(100% - 56px),transparent) }
 .ptab{
-  display:inline-flex; align-items:center; gap:11px;
+  /* never shrink: squeezed, the labels ran into the next tab */
+  flex:0 0 auto;
+  display:inline-flex; align-items:center; gap:9px;
   padding:4px 2px; white-space:nowrap;
   color:var(--muted);
-  font-family:var(--ff-d); font-weight:600; font-size:15px; letter-spacing:-.015em;
+  font-family:var(--ff-d); font-weight:600; font-size:14.5px; letter-spacing:-.015em;
   transition:color .28s var(--ease);
 }
 .ptab img{
-  width:30px; height:30px; border-radius:9px;
+  width:28px; height:28px; border-radius:9px;
   opacity:.45; filter:grayscale(.7);
   transition:opacity .3s var(--ease), filter .3s var(--ease),
              transform .3s cubic-bezier(.34,1.5,.64,1);

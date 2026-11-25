@@ -240,9 +240,10 @@
       'unbox-asmr.fandom.com/wiki/Unbox_ASMR_Wiki',
       'stream-a-cheese-pull.fandom.com/wiki/Stream_A_Cheese_Pull!_Wiki',
       'defend-your-treehouse.fandom.com/wiki/Defend_Your_Treehouse_Wiki',
-      'galaxyvalues.xyz'
+      'galaxyvalues.xyz',
+      'bloombot-gtd.vercel.app'
     ];
-    var COLORS = ['#5FD647', '#A972FF', '#FFC42E', '#FF6A5A', '#E066FF'];
+    var COLORS = ['#5FD647', '#A972FF', '#FFC42E', '#FF6A5A', '#E066FF', '#FF7BC5'];
     var current = 0;
     var counted = {};
 
@@ -331,6 +332,17 @@
     tabs.forEach(function (t) {
       t.addEventListener('click', function () { go(parseInt(t.dataset.i, 10)); });
     });
+
+    /* edge fades only on the side that actually has hidden tabs */
+    function tabEdges() {
+      var max = tabsWrap.scrollWidth - tabsWrap.clientWidth;
+      tabsWrap.classList.toggle('can-left', max > 1 && tabsWrap.scrollLeft > 2);
+      tabsWrap.classList.toggle('can-right', max > 1 && tabsWrap.scrollLeft < max - 2);
+    }
+    tabsWrap.addEventListener('scroll', tabEdges, { passive: true });
+    window.addEventListener('resize', tabEdges);
+    window.addEventListener('load', tabEdges);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(tabEdges);
     $('#prev').addEventListener('click', function () { go(current - 1); });
     $('#next').addEventListener('click', function () { go(current + 1); });
 

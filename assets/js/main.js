@@ -532,10 +532,19 @@
      events, because iOS doesn't reliably apply :active to links.
      --------------------------------------------------------- */
   $$('a.weld, button.weld').forEach(function (w) {
+    /* .weld__hit keeps the hover area steady while the button moves;
+       .weld__fx clips the streak and the ripples to the face */
+    var hit = document.createElement('span');
+    hit.className = 'weld__hit';
+    hit.setAttribute('aria-hidden', 'true');
+    var fx = document.createElement('span');
+    fx.className = 'weld__fx';
+    fx.setAttribute('aria-hidden', 'true');
     var shine = document.createElement('span');
     shine.className = 'weld__shine';
-    shine.setAttribute('aria-hidden', 'true');
-    w.insertBefore(shine, w.firstChild);
+    fx.appendChild(shine);
+    w.insertBefore(fx, w.firstChild);
+    w.insertBefore(hit, w.firstChild);
 
     var down = false;
     function press(x, y) {
@@ -551,7 +560,7 @@
       rp.className = 'weld__ripple';
       rp.setAttribute('aria-hidden', 'true');
       rp.style.cssText = 'left:' + px + 'px;top:' + py + 'px;--d:' + Math.round(d) + 'px';
-      w.appendChild(rp);
+      fx.appendChild(rp);
       rp.addEventListener('animationend', function () { rp.remove(); });
     }
     function release(fire) {

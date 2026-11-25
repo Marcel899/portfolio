@@ -488,13 +488,28 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 :is(a,button).weld:active::after,
 :is(a,button).weld.is-pressed::after{ opacity:.35 }
 
+/* Hover used to flicker: the lift moved the button out from under a pointer
+   resting near its bottom edge, hover dropped, the button fell back under
+   the pointer, hover returned, and so on, restarting the light sweep each
+   time (it showed as a band stuck on the face). .weld__hit is an invisible
+   strip, part of the button, that reaches over the ledge below and a little
+   above, so lifting or sinking never takes the button out from under the
+   pointer. It has to sit outside any clipping, so pressable welds stop
+   clipping and the effects that need it live in .weld__fx instead. */
+:is(a,button).weld{ overflow:visible }
+.weld__hit{ position:absolute; left:-3px; right:-3px; top:-8px; bottom:-12px; z-index:-2 }
+.weld__fx{
+  position:absolute; inset:0; z-index:-1; overflow:hidden;
+  border-radius:5px; pointer-events:none;
+}
+
 /* a streak of light crosses the face once as the pointer arrives */
-:is(a,button).weld > .weld__shine{
-  position:absolute; inset:-3px; z-index:-1; pointer-events:none;
+.weld__shine{
+  position:absolute; inset:0;
   background:linear-gradient(105deg, transparent 40%, rgba(255,255,255,.42) 50%, transparent 60%) 105% 0/250% 100% no-repeat;
 }
 @media (hover:hover){
-  :is(a,button).weld:hover > .weld__shine{
+  :is(a,button).weld:hover .weld__shine{
     background-position:-5% 0;
     transition:background-position .75s cubic-bezier(.22,.61,.36,1);
   }
@@ -999,15 +1014,32 @@ a.comm__meta:hover{ color:var(--pc) }
    ========================================================= */
 .about__grid{
   display:grid; grid-template-columns:auto minmax(0,1fr);
-  gap:clamp(22px,3.6vw,52px); align-items:start;
+  gap:clamp(22px,3.6vw,52px); align-items:center;
 }
-.about__me{ margin:0 }
+/* the cut-out stands on a pool of light instead of sitting in a box; the
+   drawing is cropped at the waist, so that edge fades into the page */
+.about__me{
+  position:relative; margin:0;
+  width:clamp(170px,21vw,250px);
+}
+.about__me::before{
+  content:""; position:absolute; z-index:0;
+  left:6%; right:6%; top:14%; bottom:2%; border-radius:50%;
+  background:
+    radial-gradient(closest-side, rgba(76,141,255,.34), rgba(76,141,255,.10) 62%, transparent),
+    radial-gradient(closest-side at 50% 30%, rgba(120,200,255,.16), transparent);
+  filter:blur(6px);
+}
 .about__me img{
-  width:clamp(112px,14vw,172px); height:auto; aspect-ratio:1;
-  border-radius:clamp(22px,2.6vw,30px);
-  border:1px solid var(--line-2);
-  box-shadow:0 20px 46px rgba(0,0,0,.5), 0 0 0 5px rgba(76,141,255,.10);
+  position:relative; z-index:1;
+  width:100%; height:auto; aspect-ratio:640/671;
+  -webkit-mask-image:linear-gradient(180deg,#000 74%,transparent 98%);
+  mask-image:linear-gradient(180deg,#000 74%,transparent 98%);
+  filter:drop-shadow(0 14px 22px rgba(0,0,0,.45));
+  transform-origin:50% 100%;
+  transition:transform .5s cubic-bezier(.3,1.75,.5,1);
 }
+.about__me:hover img{ transform:translateY(-4px) rotate(-1.5deg) }
 .about__text{ max-width:58ch }
 .about__text .lead{
   font-family:var(--ff-d); font-size:clamp(20px,2.7vw,27px); font-weight:500;
@@ -1115,7 +1147,12 @@ a.comm__meta:hover{ color:var(--pc) }
     background-color .2s, filter .2s, opacity .28s var(--ease);
 }
 .totop.weld.is-on{ opacity:1; transform:translateY(var(--lift)); pointer-events:auto }
-.totop::before, .totop::after{ border-radius:9px }
+.totop::before, .totop::after, .totop .weld__fx{ border-radius:9px }
+/* the arrow's own clip, so it can fly out of the top and back in from below */
+.totop__arrow{
+  position:absolute; inset:0; display:grid; place-items:center;
+  overflow:hidden; border-radius:9px; pointer-events:none;
+}
 .totop svg{
   width:20px; height:20px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.35));
   transition:transform .35s cubic-bezier(.3,1.75,.5,1);

@@ -398,6 +398,21 @@
   var tiles = $$('.tile');
   function shown() { return tiles.filter(function (t) { return !t.classList.contains('is-hidden'); }); }
 
+  /* fade each screenshot in once it has actually arrived (styles.css keeps
+     the tile shimmering until then). Images that loaded before this ran are
+     marked in the same frame the class goes on, so nothing flashes. */
+  document.documentElement.classList.add('js');
+  tiles.forEach(function (t) {
+    var img = $('img', t);
+    if (!img) return;
+    function ready() { img.classList.add('is-loaded'); t.classList.add('is-ready'); }
+    if (img.complete && img.naturalWidth) ready();
+    else {
+      img.addEventListener('load', ready, { once: true });
+      img.addEventListener('error', ready, { once: true });
+    }
+  });
+
   /* ---------------------------------------------------------
      Lightbox
      --------------------------------------------------------- */
@@ -413,10 +428,24 @@
   var lbAt = 0;
   var lastFocus = null;
 
+  var warmed = {};
+  function warm(t) {                      /* fetch a neighbour before it is asked for */
+    if (!t || warmed[t.dataset.src]) return;
+    warmed[t.dataset.src] = true;
+    var im = new Image(); im.decoding = 'async'; im.src = t.dataset.src;
+  }
+  lbImg.addEventListener('load', function () { if (lbWrap) lbWrap.classList.remove('is-loading'); });
+  lbImg.addEventListener('error', function () { if (lbWrap) lbWrap.classList.remove('is-loading'); });
+
   function paint() {
     var t = lbSet[lbAt];
     if (!t) return;
-    lbImg.src = t.dataset.src;
+    var src = t.dataset.src;
+    if (lbWrap && lbImg.getAttribute('src') !== src) lbWrap.classList.add('is-loading');
+    lbImg.src = src;
+    if (lbImg.complete && lbImg.naturalWidth && lbWrap) lbWrap.classList.remove('is-loading');
+    warm(lbSet[(lbAt + 1) % lbSet.length]);
+    warm(lbSet[(lbAt - 1 + lbSet.length) % lbSet.length]);
     lbImg.alt = t.dataset.title + ' — ' + t.dataset.desc;
     lbTitle.textContent = t.dataset.title;
     lbDesc.textContent = t.dataset.desc;

@@ -33,7 +33,7 @@ index.html            markup + all copy
 assets/css/styles.css design system and every component
 assets/js/main.js     hero meteors, slider, lightbox, copy, back-to-top
 assets/work/          wiki and site screenshots (*.webp full size, *-t.webp thumbnails)
-assets/img/           weave.png — the lattice texture on plates, badges and buttons
+assets/img/           weave.png (the lattice on plates, badges and buttons), og.jpg (link preview)
 assets/icons/         game, server and profile icons
 assets/icons/roles/   role badges used in the role chips
 ```

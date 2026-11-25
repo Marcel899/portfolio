@@ -744,4 +744,73 @@
       history.replaceState(null, '', id);
     });
   });
+  /* ---------------------------------------------------------
+     Hover on touch screens
+
+     Phones have no hover, so most hover effects never showed there. This
+     copies every :hover rule in styles.css into an identical rule for a
+     .tap class (including the ones kept behind @media (hover:hover)), and
+     a touch adds .tap to the touched element and its ancestors, exactly as
+     a mouse hover would, for as long as the finger is down plus a moment.
+     A touch that turns into a scroll never lights anything up.
+     --------------------------------------------------------- */
+  (function () {
+    if (!('ontouchstart' in window) && !(navigator.maxTouchPoints > 0)) return;
+
+    var out = [];
+    function walk(rules, wrap) {
+      for (var i = 0; i < rules.length; i++) {
+        var r = rules[i];
+        if (r.type === 1 && r.selectorText && r.selectorText.indexOf(':hover') > -1) {
+          var sel = r.selectorText.replace(/:hover/g, '.tap');
+          var css = sel + '{' + r.style.cssText + '}';
+          out.push(wrap ? wrap.replace('#', css) : css);
+        } else if (r.type === 4 && r.cssRules) {          /* @media */
+          var cond = r.conditionText || r.media.mediaText;
+          if (/hover\s*:\s*hover/.test(cond)) walk(r.cssRules, wrap);   /* drop the hover-only guard */
+          else walk(r.cssRules, '@media ' + cond + '{#}');
+        }
+      }
+    }
+    for (var k = 0; k < document.styleSheets.length; k++) {
+      var sh = document.styleSheets[k], rules;
+      try { rules = sh.cssRules; } catch (e) { continue; }   /* cross-origin (fonts) */
+      if (rules) walk(rules, '');
+    }
+    if (!out.length) return;
+    var st = document.createElement('style');
+    st.id = 'tapHover';
+    st.textContent = out.join('\n');
+    document.head.appendChild(st);
+
+    var lit = [], startT = 0, offT = 0, sx = 0, sy = 0, armed = false, tgt = null;
+    function clear() { lit.forEach(function (e) { e.classList.remove('tap'); }); lit = []; }
+    function light(el) {
+      clear();
+      for (var e = el; e && e !== document.body; e = e.parentElement) { e.classList.add('tap'); lit.push(e); }
+    }
+    document.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'touch') return;
+      clearTimeout(startT); clearTimeout(offT);
+      sx = e.clientX; sy = e.clientY; armed = true;
+      tgt = e.target;
+      /* a short wait, so a touch that becomes a scroll never flashes */
+      startT = setTimeout(function () { if (armed) light(tgt); }, 70);
+    }, { passive: true });
+    document.addEventListener('pointermove', function (e) {
+      if (!armed || e.pointerType !== 'touch') return;
+      if (Math.abs(e.clientX - sx) > 10 || Math.abs(e.clientY - sy) > 10) { armed = false; clearTimeout(startT); clear(); }
+    }, { passive: true });
+    function release(e) {
+      if (e.pointerType !== 'touch') return;
+      clearTimeout(startT);
+      if (armed && !lit.length && tgt) light(tgt);   /* a quick tap: light it now */
+      armed = false;
+      offT = setTimeout(clear, 380);       /* long enough to see the effect */
+    }
+    document.addEventListener('pointerup', release, { passive: true });
+    document.addEventListener('pointercancel', function (e) { if (e.pointerType === 'touch') { armed = false; clearTimeout(startT); clear(); } }, { passive: true });
+    /* the finger started a scroll: nothing stays lit */
+    window.addEventListener('scroll', function () { if (armed) { armed = false; clearTimeout(startT); clear(); } }, { passive: true });
+  })();
 })();

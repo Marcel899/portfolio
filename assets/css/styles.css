@@ -334,8 +334,8 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   border:1px solid var(--line-2);
   box-shadow:0 16px 40px rgba(0,0,0,.55), 0 0 0 5px rgba(76,141,255,.11);
 }
-/* The name in a galaxy gradient: pale blue, violet, pink and cyan, the
-   colours of the moon scene and the avatar's sky, drifting slowly sideways.
+/* The name in a nebula gradient: aqua, blue, violet and magenta, drifting
+   slowly sideways.
 
    Done so the browser never has to repaint it. Animating a gradient that
    is clipped to text (background-clip:text) re-rasterises the letters, and
@@ -355,7 +355,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   padding:0 .04em .06em;
   background:
     linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.12) 42%, rgba(255,255,255,0) 60%) 0 0 / 100% 100% no-repeat,
-    linear-gradient(90deg, #c4d4ff 0%, #a88bff 22%, #ff9fe0 44%, #8fe6ff 68%, #b6a4ff 84%, #c4d4ff 100%) 0 50% / 200% 100% repeat-x;
+    linear-gradient(90deg, #7cf3df 0%, #6fa8ff 24%, #9d7dff 48%, #ec7cf6 70%, #8fb8ff 86%, #7cf3df 100%) 0 50% / 200% 100% repeat-x;
   -webkit-background-clip:text; background-clip:text; color:transparent;
 }
 .hero__name.fx-ready{ background:none }
@@ -371,7 +371,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
    one copy per loop, so the drift never jumps */
 .hero__fx::before{
   content:""; position:absolute; top:0; bottom:0; left:0; width:200%;
-  background:linear-gradient(90deg, #c4d4ff 0%, #a88bff 22%, #ff9fe0 44%, #8fe6ff 68%, #b6a4ff 84%, #c4d4ff 100%) 0 0 / 50% 100% repeat-x;
+  background:linear-gradient(90deg, #7cf3df 0%, #6fa8ff 24%, #9d7dff 48%, #ec7cf6 70%, #8fb8ff 86%, #7cf3df 100%) 0 0 / 50% 100% repeat-x;
   animation:galaxyDrift 14s linear infinite;
   will-change:transform;
 }
@@ -1413,7 +1413,16 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
    ========================================================= */
 @media (max-width:1080px){
   /* below a full row, an even grid instead of stretched leftovers */
-  .slider__tabs{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)) }
+  /* below a full row of names: one row of six icon-only tabs. The name of
+     the project on screen is the heading right under the preview, and each
+     tab keeps its name for screen readers. */
+  .slider__tabs{ display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:8px }
+  .ptab.weld{ justify-content:center; padding:7px 4px; border-radius:10px }
+  .ptab.weld > span:not([class]){
+    position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden;
+    clip-path:inset(50%); white-space:nowrap;
+  }
+  .ptab img{ width:32px; height:32px; border-radius:8px }
   .pinfo{ grid-template-columns:1fr; gap:22px }
   .pstats{
     grid-column:1; grid-row:auto;
@@ -1449,13 +1458,10 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
 }
 
 @media (max-width:560px){
-  /* two to a row on a phone; long names wrap onto a second line */
-  .slider__tabs{ grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px 8px }
-  .ptab.weld{
-    justify-content:flex-start; text-align:left; line-height:1.15;
-    font-size:12.5px; padding:6px 9px 6px 6px; gap:7px;
-  }
-  .ptab img{ width:24px; height:24px; border-radius:6px }
+  /* the icon row, a little tighter */
+  .slider__tabs{ gap:6px }
+  .ptab.weld{ padding:6px 2px }
+  .ptab img{ width:28px; height:28px; border-radius:7px }
 
   /* the pager keeps its words short on a phone */
   .pager__step{ font-size:14px; gap:9px }
@@ -1514,6 +1520,10 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
   .tile__meta img{ width:18px; height:18px; border-radius:5px }
   .tile__meta{ gap:7px }
   .tile__meta em{ display:none }
+  .tile.tile--more{ min-height:0; aspect-ratio:auto; padding:14px 16px }
+  .tile__moreTxt{ flex-direction:row; align-items:baseline; gap:10px }
+  .tile__moreTxt b{ font-size:24px }
+  .tile__moreTxt span{ font-size:13px }
   .stats__grid{ grid-template-columns:repeat(2,1fr); gap:24px 0 }
   .stats__grid li:nth-child(3)::before{ display:none }
   .pstats{ gap:22px 20px }

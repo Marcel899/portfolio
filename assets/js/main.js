@@ -252,12 +252,16 @@
     var NAMES = tabs.map(function (t) { return t.textContent.replace(/\s+/g, ' ').trim(); });
     var pgPrev = $('#pgPrev'), pgNext = $('#pgNext');
     var pgPrevName = $('#pgPrevName'), pgNextName = $('#pgNextName'), pgCount = $('#pgCount');
+    var pgPrevIcon = $('#pgPrevIcon'), pgNextIcon = $('#pgNextIcon');
+    var ICONS = tabs.map(function (t) { var im = $('img', t); return im ? im.getAttribute('src') : ''; });
     var dots = $$('.pager__dot', slider);
     function syncPager() {
       var n = tabs.length;
       var p = (current - 1 + n) % n, q = (current + 1) % n;
       if (pgPrevName) pgPrevName.textContent = NAMES[p];
       if (pgNextName) pgNextName.textContent = NAMES[q];
+      if (pgPrevIcon) pgPrevIcon.src = ICONS[p];
+      if (pgNextIcon) pgNextIcon.src = ICONS[q];
       if (pgPrev) pgPrev.setAttribute('aria-label', 'Previous project: ' + NAMES[p]);
       if (pgNext) pgNext.setAttribute('aria-label', 'Next project: ' + NAMES[q]);
       if (pgCount) pgCount.textContent = (current + 1) + ' / ' + n;

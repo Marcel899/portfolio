@@ -53,7 +53,6 @@
 @keyframes sheen{ to{ background-position:-200% 0 } }
 
 .way:hover .way__value,
-.lnk:hover,
 .comm__row:hover h3 a,
 a.comm__meta:hover{
   --sheen-hi: color-mix(in srgb, var(--pc, var(--accent)) 82%, #FFFFFF);
@@ -67,7 +66,6 @@ a.comm__meta:hover{
   animation:sheen 2.2s linear infinite;
 }
 /* icons inside those links keep a real colour */
-.lnk:hover svg{ stroke:var(--pc, var(--accent)) }
 .comm__row:hover h3 a svg{ stroke:var(--pc) }
 
 [hidden]{ display:none !important }
@@ -805,7 +803,9 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 .pinfo{
   display:grid;
   grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);
-  gap:clamp(24px,4vw,52px);
+  /* rows sit close (name, text, links read as one block); the gap that
+     separates them from the stats column stays wide */
+  gap:20px clamp(24px,4vw,52px);
   padding-top:clamp(20px,2.6vw,26px);
   border-top:1px solid var(--line);
 }
@@ -884,7 +884,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 }
 
 .pstats{
-  grid-column:2; grid-row:1 / span 3; align-self:start;
+  grid-column:2; grid-row:1 / span 2; align-self:start;
   display:grid; grid-template-columns:repeat(2,1fr); gap:28px 34px;
   padding-left:clamp(26px,3vw,46px);
   border-left:1px solid var(--line);
@@ -897,18 +897,43 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 }
 .pstats > div:last-child dd{ color:var(--pc) }
 
-.pinfo__links{ grid-column:1; display:flex; flex-wrap:wrap; gap:10px 22px; align-items:center }
+/* full width under both columns, so the links stay on one row */
+.pinfo__links{ grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:4px }
+/* project links: small buttons, each with an icon in the badge style */
 .lnk{
-  display:inline-flex; align-items:center; gap:8px;
-  font-family:var(--ff-d); font-weight:600; font-size:14.5px;
-  color:var(--pc); padding-bottom:2px;
-  border-bottom:1px solid color-mix(in srgb, var(--pc) 32%, transparent);
-  transition:border-color .2s, gap .2s var(--ease);
+  display:inline-flex; align-items:center; gap:9px;
+  padding:7px 12px 7px 9px; border-radius:11px;
+  border:1px solid var(--line-2); background:rgba(255,255,255,.025);
+  font-family:var(--ff-d); font-weight:600; font-size:14.5px; letter-spacing:-.01em;
+  color:var(--text-2);
+  transition:color .25s var(--glide), border-color .25s var(--glide),
+             background-color .25s var(--glide), transform .35s var(--glide);
 }
-.lnk:hover{ border-bottom-color:var(--pc); gap:11px }
-.lnk svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round }
-.lnk--sub{ color:var(--text-2); border-bottom-color:var(--line-2) }
-.lnk--sub:hover{ color:var(--text); border-bottom-color:var(--line-2) }
+.lnk__ic{
+  flex:0 0 auto; width:20px; height:20px;
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));
+  transition:transform .5s var(--spring);
+}
+.lnk svg{
+  flex:0 0 auto; width:13px; height:13px; margin-left:-1px; opacity:.55;
+  fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;
+  transition:opacity .25s var(--glide), transform .35s var(--glide);
+}
+/* the first link (the wiki or site itself) carries the project's colour */
+.lnk:not(.lnk--sub){
+  color:color-mix(in srgb, var(--pc) 78%, #fff);
+  border-color:color-mix(in srgb, var(--pc) 40%, var(--line-2));
+  background:color-mix(in srgb, var(--pc) 8%, transparent);
+}
+.lnk:hover{
+  color:var(--text); transform:translateY(-2px);
+  border-color:color-mix(in srgb, var(--pc) 60%, var(--line-2));
+  background:color-mix(in srgb, var(--pc) 12%, transparent);
+}
+.lnk:not(.lnk--sub):hover{ color:#fff }
+.lnk:hover .lnk__ic{ transform:rotate(-8deg) scale(1.12) }
+.lnk:hover svg{ opacity:1; transform:translate(1px,-1px) }
+.lnk:active{ transform:translateY(0) scale(.98); transition-duration:.25s, .25s, .25s, .14s }
 
 .slider__note{
   margin-top:22px; font-size:13px; color:var(--muted);
@@ -1464,8 +1489,8 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
      an invisible pseudo-element lifts the hit area to 44px without moving
      anything; where links are stacked, real padding is used so neighbouring
      targets do not overlap. */
-  .lnk, .comm__row h3 a, a.comm__meta{ position:relative }
-  .lnk::after, .comm__row h3 a::after, a.comm__meta::after{
+  .comm__row h3 a, a.comm__meta{ position:relative }
+  .comm__row h3 a::after, a.comm__meta::after{
     content:""; position:absolute; left:0; right:0; top:50%;
     height:44px; transform:translateY(-50%);
   }
@@ -1511,6 +1536,21 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
   .stats__grid{ grid-template-columns:repeat(2,1fr); gap:24px 0 }
   .stats__grid li:nth-child(3)::before{ display:none }
   .pstats{ gap:22px 20px }
+  /* links as an even two-column grid, the wiki or site itself across the
+     top, each tall enough to tap comfortably */
+  .pinfo__links{ display:grid; grid-template-columns:1fr 1fr; gap:8px }
+  .lnk{ min-height:46px; justify-content:center; padding:8px 10px; font-size:14px; min-width:0 }
+  .lnk span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+  .lnk:not(.lnk--sub){ grid-column:1 / -1 }
+  /* the little arrow costs the room a label like "Support server" needs */
+  .lnk svg{ display:none }
+}
+@media (max-width:380px){
+  /* the narrowest phones: one link per row, so no label is ever cut */
+  .pinfo__links{ grid-template-columns:1fr }
+  .lnk--sub:last-child:nth-child(even){ grid-column:auto }
+  /* an odd one out at the end takes the whole row rather than sitting alone */
+  .lnk--sub:last-child:nth-child(even){ grid-column:1 / -1 }
   .ways{ grid-template-columns:1fr }
   .cta__meta{ gap:14px 28px }
   .lb__imgwrap{ max-height:62vh }

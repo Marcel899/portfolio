@@ -239,9 +239,10 @@
       'gtd.fandom.com/wiki/Garden_Tower_Defense_Wiki',
       'unbox-asmr.fandom.com/wiki/Unbox_ASMR_Wiki',
       'stream-a-cheese-pull.fandom.com/wiki/Stream_A_Cheese_Pull!_Wiki',
-      'defend-your-treehouse.fandom.com/wiki/Defend_Your_Treehouse_Wiki'
+      'defend-your-treehouse.fandom.com/wiki/Defend_Your_Treehouse_Wiki',
+      'galaxyvalues.xyz'
     ];
-    var COLORS = ['#5FD647', '#A972FF', '#FFC42E', '#FF6A5A'];
+    var COLORS = ['#5FD647', '#A972FF', '#FFC42E', '#FF6A5A', '#E066FF'];
     var current = 0;
     var counted = {};
 
@@ -480,24 +481,41 @@
   /* ---------------------------------------------------------
      Back to top
      --------------------------------------------------------- */
+  /* The button used to pop in with no fade (unhidden and switched on in the
+     same frame, so there was nothing to transition from), stayed clickable
+     while fading out, and fought the hover lift mid-scroll. Now it is
+     unhidden first and switched on a frame later, and only one hide timer is
+     ever pending. */
   var toTop = $('#toTop');
   if (toTop) {
-    var topTicking = false;
-    function syncTop() {
-      var show = window.scrollY > window.innerHeight * 0.6;
-      if (show && toTop.hidden) toTop.hidden = false;
-      toTop.classList.toggle('is-on', show);
-      if (!show) {
-        clearTimeout(toTop._t);
-        toTop._t = setTimeout(function () { if (!toTop.classList.contains('is-on')) toTop.hidden = true; }, 320);
+    var topTicking = false, topOn = false, hideT = 0;
+    function setTop(on) {
+      if (on === topOn) return;
+      topOn = on;
+      clearTimeout(hideT);
+      if (on) {
+        toTop.hidden = false;
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { if (topOn) toTop.classList.add('is-on'); });
+        });
+      } else {
+        toTop.classList.remove('is-on');
+        if (toTop === document.activeElement) toTop.blur();
+        hideT = setTimeout(function () { if (!topOn) toTop.hidden = true; }, 340);
       }
+    }
+    function syncTop() {
       topTicking = false;
+      setTop(window.scrollY > Math.min(600, window.innerHeight * 0.6));
     }
     window.addEventListener('scroll', function () {
       if (!topTicking) { topTicking = true; requestAnimationFrame(syncTop); }
     }, { passive: true });
+    window.addEventListener('resize', syncTop);
     toTop.addEventListener('click', function () {
       window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      var hero = $('.hero__name');
+      if (hero) { hero.setAttribute('tabindex', '-1'); hero.focus({ preventScroll: true }); }
     });
     syncTop();
   }

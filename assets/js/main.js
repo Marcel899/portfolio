@@ -481,6 +481,70 @@
   /* ---------------------------------------------------------
      Back to top
      --------------------------------------------------------- */
+  /* ---------------------------------------------------------
+     Weld press feel
+
+     CSS does the travel (lift, sink, spring back). This adds what CSS can't:
+     a ripple from the exact point you pressed, a ring that leaves the button
+     as it springs back, a light streak layer for the hover sweep, and a tick
+     of vibration on phones. The pressed state is also set from pointer
+     events, because iOS doesn't reliably apply :active to links.
+     --------------------------------------------------------- */
+  $$('a.weld, button.weld').forEach(function (w) {
+    var shine = document.createElement('span');
+    shine.className = 'weld__shine';
+    shine.setAttribute('aria-hidden', 'true');
+    w.insertBefore(shine, w.firstChild);
+
+    var down = false;
+    function press(x, y) {
+      down = true;
+      w.classList.add('is-pressed');
+      if (reduce) return;
+      var r = w.getBoundingClientRect();
+      var px = (x == null ? r.left + r.width / 2 : x) - r.left - w.clientLeft;
+      var py = (y == null ? r.top + r.height / 2 : y) - r.top - w.clientTop;
+      /* big enough to reach the farthest corner from where it started */
+      var d = 2 * Math.sqrt(Math.pow(Math.max(px, r.width - px), 2) + Math.pow(Math.max(py, r.height - py), 2));
+      var rp = document.createElement('span');
+      rp.className = 'weld__ripple';
+      rp.setAttribute('aria-hidden', 'true');
+      rp.style.cssText = 'left:' + px + 'px;top:' + py + 'px;--d:' + Math.round(d) + 'px';
+      w.appendChild(rp);
+      rp.addEventListener('animationend', function () { rp.remove(); });
+    }
+    function release(fire) {
+      if (!down) return;
+      down = false;
+      w.classList.remove('is-pressed');
+      if (fire && !reduce) {
+        w.classList.remove('is-ring');
+        void w.offsetWidth;                     /* restart the ring if it is mid-flight */
+        w.classList.add('is-ring');
+      }
+    }
+
+    w.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0) return;
+      press(e.clientX, e.clientY);
+      if (e.pointerType === 'touch' && navigator.vibrate && !reduce) {
+        try { navigator.vibrate(8); } catch (err) { /* not allowed yet */ }
+      }
+    });
+    w.addEventListener('pointerup', function () { release(true); });
+    w.addEventListener('pointerleave', function () { release(false); });
+    w.addEventListener('pointercancel', function () { release(false); });
+    w.addEventListener('animationend', function (e) {
+      if (e.animationName === 'weldRing') w.classList.remove('is-ring');
+    });
+    w.addEventListener('keydown', function (e) {
+      if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) {
+        press();
+        setTimeout(function () { release(true); }, 110);
+      }
+    });
+  });
+
   /* The button used to pop in with no fade (unhidden and switched on in the
      same frame, so there was nothing to transition from), stayed clickable
      while fading out, and fought the hover lift mid-scroll. Now it is
@@ -512,7 +576,15 @@
       if (!topTicking) { topTicking = true; requestAnimationFrame(syncTop); }
     }, { passive: true });
     window.addEventListener('resize', syncTop);
+    toTop.addEventListener('animationend', function (e) {
+      if (e.animationName === 'totopLaunch') toTop.classList.remove('is-launch');
+    });
     toTop.addEventListener('click', function () {
+      if (!reduce) {
+        toTop.classList.remove('is-launch');
+        void toTop.offsetWidth;
+        toTop.classList.add('is-launch');
+      }
       window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
       var hero = $('.hero__name');
       if (hero) { hero.setAttribute('tabindex', '-1'); hero.focus({ preventScroll: true }); }

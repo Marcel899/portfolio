@@ -425,14 +425,87 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   opacity:0; transition:opacity .15s;
 }
 .weld:hover::after{ opacity:1 }
-/* pressed, the lit lip becomes a shadow, so it travels into the page */
-.weld:active{
-  transform:translateY(2px);
+
+/* ---------------------------------------------------------
+   Press
+
+   Only on welds you can actually press (links and buttons; the role chips
+   are welds too and stay still). The button stands on a solid ledge in its
+   own border colour. Hover lifts it off the ledge, pressing drives it all
+   the way down onto it, and letting go springs it back past where it
+   started before settling. --lift and --ledge are the only two numbers each
+   state changes, so the face and the ledge can never come apart.
+   --------------------------------------------------------- */
+:is(a,button).weld{
+  --lift:0px; --ledge:4px;
+  --wr:rgba(var(--wg),.8);                  /* click ring */
+  transform:translateY(var(--lift));
   box-shadow:
-    0 1px 2px rgba(0,0,0,.3),
-    0 0 4px 1px rgba(var(--wg),.45),
-    inset 0 3px 0 rgba(0,0,0,.18);
-  transition-duration:.05s;
+    0 var(--ledge) 0 var(--wd),
+    0 calc(var(--ledge) + 4px) 10px -3px rgba(0,0,0,.55),
+    0 0 6px 1px rgba(var(--wg),.5),
+    0 0 14px 2px rgba(var(--wg),.32),
+    inset 0 3px 0 rgba(255,255,255,.3),
+    inset 0 -3px 0 rgba(0,0,0,.12);
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  user-select:none; -webkit-user-select:none;
+  transition:
+    transform .42s cubic-bezier(.3,1.75,.5,1),
+    box-shadow .42s cubic-bezier(.3,1.75,.5,1),
+    background-color .2s, filter .2s;
+}
+/* transform is restated in each state so a generic .btn:hover / :active
+   transform can't win over the variable-driven one */
+:is(a,button).weld:hover{
+  --lift:-3px; --ledge:7px;
+  transform:translateY(var(--lift));
+  filter:brightness(1.07) saturate(1.06);
+}
+/* pressed: straight down, fast, no spring on the way in */
+:is(a,button).weld:active,
+:is(a,button).weld.is-pressed{
+  --lift:4px; --ledge:0px;
+  transform:translateY(var(--lift));
+  filter:brightness(.95);
+  transition-duration:.07s, .07s, .2s, .07s;
+  transition-timing-function:cubic-bezier(.2,.8,.3,1);
+}
+:is(a,button).weld:active::after,
+:is(a,button).weld.is-pressed::after{ opacity:.35 }
+
+/* a streak of light crosses the face once as the pointer arrives */
+:is(a,button).weld > .weld__shine{
+  position:absolute; inset:-3px; z-index:-1; pointer-events:none;
+  background:linear-gradient(105deg, transparent 40%, rgba(255,255,255,.42) 50%, transparent 60%) 105% 0/250% 100% no-repeat;
+}
+@media (hover:hover){
+  :is(a,button).weld:hover > .weld__shine{
+    background-position:-5% 0;
+    transition:background-position .75s cubic-bezier(.22,.61,.36,1);
+  }
+}
+
+/* the ripple that spreads from where you pressed, and the ring that leaves
+   the button as it springs back (both added by main.js) */
+.weld__ripple{
+  position:absolute; z-index:-1; pointer-events:none;
+  width:var(--d); height:var(--d); margin:calc(var(--d) / -2) 0 0 calc(var(--d) / -2);
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,.62) 0%, rgba(255,255,255,.4) 30%, rgba(255,255,255,.16) 52%, rgba(255,255,255,0) 70%);
+  transform:scale(0); opacity:1;
+  animation:weldRipple .6s cubic-bezier(.22,.61,.36,1) forwards;
+}
+@keyframes weldRipple{
+  0%  { transform:scale(0);   opacity:1 }
+  55% { opacity:.85 }
+  100%{ transform:scale(1);   opacity:0 }
+}
+
+:is(a,button).weld.is-ring{ animation:weldRing .55s cubic-bezier(.22,.61,.36,1) }
+@keyframes weldRing{
+  from{ outline:2px solid var(--wr); outline-offset:0 }
+  to  { outline:2px solid transparent; outline-offset:12px }
 }
 /* the site's own palette, kept to its values */
 .w-green { --wb:#28a828; --wd:#145c14; --wg:40,200,40 }
@@ -443,6 +516,8 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 .w-orange{ --wb:#e07a10; --wd:#6b3200; --wg:210,110,10 }
 .w-dark  { --wb:#3a4050; --wd:#1b1f27; --wg:0,0,0 }
 .w-dark:hover{ --wb:#454c5e }
+/* no glow colour to ring with, so the dark one rings in white */
+:is(a,button).weld.w-dark{ --wr:rgba(255,255,255,.55) }
 
 .stats{ background:none }
 .stats__grid{
@@ -517,6 +592,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 }
 .ptab:hover{ color:var(--text-2) }
 .ptab:hover img{ opacity:.85; filter:grayscale(.2); transform:translateY(-1px) }
+.ptab:active img{ transform:scale(.88); transition-duration:.07s }
 .ptab.is-on{ color:var(--text) }
 .ptab.is-on img{ opacity:1; filter:none; transform:translateY(-1px) scale(1.06) }
 .slider__bar{
@@ -584,7 +660,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   display:grid; place-items:center;
   background:rgba(10,12,10,.6); border:1px solid var(--line-2);
   backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
-  opacity:0; transition:opacity .3s, background .2s, transform .2s var(--ease);
+  opacity:0; transition:opacity .3s, background .2s, border-color .2s, transform .4s cubic-bezier(.3,1.75,.5,1);
   z-index:3;
 }
 .frame__nav svg{ width:19px; height:19px; fill:none; stroke:var(--text); stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round }
@@ -593,7 +669,12 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 .frame:hover .frame__nav,.frame__nav:focus-visible{ opacity:1 }
 .frame__nav:hover{ background:var(--pc); border-color:var(--pc) }
 .frame__nav:hover svg{ stroke:var(--accent-ink) }
-.frame__nav:active{ transform:translateY(-50%) scale(.94) }
+.frame__nav:hover{ transform:translateY(-50%) scale(1.08) }
+.frame__nav:active{ transform:translateY(-50%) scale(.86); transition-duration:.3s, .2s, .2s, .07s }
+/* the chevron leans the way it will take you */
+.frame__nav svg{ transition:transform .35s cubic-bezier(.3,1.75,.5,1) }
+.frame__nav--prev:hover svg{ transform:translateX(-2px) }
+.frame__nav--next:hover svg{ transform:translateX(2px) }
 
 /* --- info block --- */
 .slider__info{ position:relative }
@@ -753,6 +834,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 }
 .tile:hover .tile__meta em{ color:var(--text-2) }
 .tile:hover{ transform:translateY(-4px); border-color:var(--line-2); box-shadow:0 20px 44px rgba(0,0,0,.5) }
+.tile:active{ transform:translateY(-1px) scale(.975); transition-duration:.08s }
 .tile:hover img{ transform:scale(1.045); filter:saturate(1.05) }
 .tile:hover .tile__meta{ transform:translateY(0); opacity:1 }
 .tile.is-hidden{ display:none }
@@ -936,7 +1018,7 @@ a.comm__meta:hover{ color:var(--pc) }
 .way{
   display:flex; flex-direction:column; align-items:center; gap:8px;
   padding:16px 16px; text-align:center; font:inherit;
-  transition:transform .25s var(--ease);
+  transition:transform .4s cubic-bezier(.3,1.75,.5,1);
 }
 .way + .way{ border-left:1px solid var(--line) }
 .way__logo{
@@ -958,7 +1040,8 @@ a.comm__meta:hover{ color:var(--pc) }
   font-family:var(--ff-m); font-size:11px; letter-spacing:.04em; color:var(--muted);
   transition:color .22s var(--ease);
 }
-.way:hover{ transform:translateY(-2px) }
+.way:hover{ transform:translateY(-3px) }
+.way:active{ transform:translateY(1px) scale(.97); transition-duration:.07s }
 .way:hover .way__value{ color:var(--accent) }
 .way:hover .way__hint{ color:var(--text-2) }
 .way.is-copied .way__value{ color:var(--accent) }
@@ -986,17 +1069,34 @@ a.comm__meta:hover{ color:var(--pc) }
   position:fixed; right:clamp(16px,2.5vw,28px); bottom:clamp(16px,2.5vw,28px);
   z-index:90; width:48px; height:48px; padding:0; border-radius:12px;
   display:grid; place-items:center;
-  opacity:0; transform:translateY(12px) scale(.92); pointer-events:none;
-  transition:opacity .3s var(--ease), transform .34s cubic-bezier(.34,1.5,.64,1),
-             box-shadow .24s var(--ease);
 }
+/* .weld is in the selector so these outrank the shared press rules; the
+   transition list keeps their order (transform, shadow, fill, filter) and
+   adds opacity, so the press timings line up with it */
+.totop.weld{
+  opacity:0; transform:translateY(16px) scale(.8); pointer-events:none;
+  transition:
+    transform .42s cubic-bezier(.3,1.75,.5,1),
+    box-shadow .42s cubic-bezier(.3,1.75,.5,1),
+    background-color .2s, filter .2s, opacity .28s var(--ease);
+}
+.totop.weld.is-on{ opacity:1; transform:translateY(var(--lift)); pointer-events:auto }
 .totop::before, .totop::after{ border-radius:9px }
-.totop.is-on{ opacity:1; transform:none; pointer-events:auto }
-.totop.is-on:hover{ transform:translateY(-3px) }
-.totop.is-on:active{ transform:translateY(2px); transition-duration:.06s }
-.totop svg{ width:20px; height:20px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.35)) }
+.totop svg{
+  width:20px; height:20px; filter:drop-shadow(0 1px 1px rgba(0,0,0,.35));
+  transition:transform .35s cubic-bezier(.3,1.75,.5,1);
+}
+.totop:hover svg{ transform:translateY(-2px) }
+/* on click the arrow shoots out of the top and comes back in from below */
+.totop.is-launch svg{ animation:totopLaunch .6s cubic-bezier(.5,0,.3,1) }
+@keyframes totopLaunch{
+  0%  { transform:translateY(0) }
+  40% { transform:translateY(-34px) }
+  41% { transform:translateY(30px) }
+  100%{ transform:translateY(0) }
+}
 /* out of the way while a screenshot is open */
-body.is-locked .totop{ opacity:0; pointer-events:none }
+body.is-locked .totop.weld{ opacity:0; pointer-events:none }
 
 /* =========================================================
    FOOTER
@@ -1058,7 +1158,7 @@ body.is-locked .totop{ opacity:0; pointer-events:none }
   display:grid; place-items:center; z-index:2;
   background:rgba(255,255,255,.07); border:1px solid var(--line-2);
   backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
-  transition:background .2s, transform .2s var(--ease);
+  transition:background .2s, transform .4s cubic-bezier(.3,1.75,.5,1);
 }
 .lb__close svg,.lb__nav svg{ width:19px; height:19px; fill:none; stroke:var(--text); stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round }
 .lb__close{ top:20px; right:20px }
@@ -1066,7 +1166,10 @@ body.is-locked .totop{ opacity:0; pointer-events:none }
 .lb__nav--next{ right:16px; top:50%; margin-top:-23px }
 .lb__close:hover,.lb__nav:hover{ background:var(--accent) }
 .lb__close:hover svg,.lb__nav:hover svg{ stroke:var(--accent-ink) }
-.lb__close:active,.lb__nav:active{ transform:scale(.93) }
+.lb__close:hover,.lb__nav:hover{ transform:scale(1.08) }
+.lb__close:active,.lb__nav:active{ transform:scale(.86); transition-duration:.2s, .07s }
+.lb__close svg{ transition:transform .4s cubic-bezier(.3,1.75,.5,1) }
+.lb__close:hover svg{ transform:rotate(90deg) }
 
 /* =========================================================
    RESPONSIVE

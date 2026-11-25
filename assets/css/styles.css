@@ -1481,7 +1481,12 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
     content:""; position:absolute; left:0; right:0; top:50%;
     height:44px; transform:translateY(-50%);
   }
-  .foot__links a, .foot__copy{ padding:11px 0 }
+  /* compact footer: the four groups two to a row, tighter links */
+  .foot{ padding-top:30px }
+  .foot__links{ display:grid; grid-template-columns:1fr 1fr; gap:22px 18px }
+  .foot__links h4{ font-size:14px; margin-bottom:6px }
+  .foot__links a, .foot__copy{ padding:7px 0; font-size:13.5px; line-height:1.3 }
+  .foot__base{ margin-top:22px; padding-top:16px; font-size:12.5px }
   .frame__nav{ width:44px; height:44px }
   .totop{ width:44px; height:44px }
 
@@ -1492,7 +1497,7 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
   .hero__role i:first-of-type{ display:none }
 
   /* room under the footer so the back-to-top button never covers its last line */
-  .foot{ padding-bottom:84px }
+  .foot{ padding-bottom:76px }
 
   /* the forced break left "Community" alone on a line here; balance wraps it */
   .cta h2 br{ display:none }

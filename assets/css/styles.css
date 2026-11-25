@@ -1018,17 +1018,35 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   filter:grayscale(100%); opacity:.18; transition:opacity .3s var(--ease);
 }
 .tile--more::after{ display:none }
+.tile--more{ align-content:center; gap:14px; transition:transform .35s var(--glide), background-color .25s var(--glide) }
+/* the six projects the hidden screens come from */
+.tile__moreIcons{ position:relative; z-index:2; display:flex; gap:8px; justify-content:center }
+.tile__moreIcons img{
+  width:28px; height:28px; border-radius:7px;
+  box-shadow:0 2px 6px rgba(0,0,0,.45);
+  transition:transform .45s var(--spring);
+}
 .tile__moreTxt{
-  position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px;
+  position:relative; z-index:2; display:flex; align-items:center; gap:9px;
 }
 .tile__moreTxt b{
-  font-family:var(--ff-d); font-size:clamp(34px,4vw,46px); font-weight:700; letter-spacing:-.04em; line-height:1;
-  color:var(--text);
+  font-family:var(--ff-d); font-size:26px; font-weight:700; letter-spacing:-.03em; line-height:1;
+  color:var(--text); transition:color .25s var(--glide);
 }
-.tile__moreTxt span{ font-size:14px; color:var(--text-2) }
-.tile--more:hover{ border-color:#10131a; background:#232836 }
+.tile__moreTxt span{ font-family:var(--ff-d); font-size:16px; font-weight:600; color:var(--text-2); white-space:nowrap }
+.tile__moreTxt svg{ width:17px; height:17px; color:var(--muted); transition:transform .35s var(--glide), color .25s var(--glide) }
+.tile--more:hover{ border-color:#10131a; background:#232836; transform:translateY(-3px) }
 .tile--more:hover::before{ opacity:.3 }
 .tile--more:hover .tile__moreTxt b{ color:var(--accent) }
+.tile--more:hover .tile__moreTxt svg{ color:var(--accent); transform:translateY(3px) }
+/* the icons hop one after another */
+.tile--more:hover .tile__moreIcons img{ transform:translateY(-4px) }
+.tile--more:hover .tile__moreIcons img:nth-child(2){ transition-delay:.04s }
+.tile--more:hover .tile__moreIcons img:nth-child(3){ transition-delay:.08s }
+.tile--more:hover .tile__moreIcons img:nth-child(4){ transition-delay:.12s }
+.tile--more:hover .tile__moreIcons img:nth-child(5){ transition-delay:.16s }
+.tile--more:hover .tile__moreIcons img:nth-child(6){ transition-delay:.2s }
+.tile--more:active{ transform:translateY(0) scale(.985); transition-duration:.16s }
 
 .gal__less{
   display:flex; align-items:center; gap:8px; margin:22px auto 0;
@@ -1525,10 +1543,14 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
   .tile__meta img{ width:18px; height:18px; border-radius:5px }
   .tile__meta{ gap:7px }
   .tile__meta em{ display:none }
-  .tile.tile--more{ min-height:0; aspect-ratio:auto; padding:14px 16px }
-  .tile__moreTxt{ flex-direction:row; align-items:baseline; gap:10px }
-  .tile__moreTxt b{ font-size:24px }
-  .tile__moreTxt span{ font-size:13px }
+  /* a slim bar: icons on the left, the count on the right */
+  .tile.tile--more{ min-height:0; aspect-ratio:auto; padding:12px 14px; display:flex; justify-content:space-between; align-items:center }
+  .tile__moreIcons{ gap:3px; flex:0 1 auto; min-width:0 }
+  .tile__moreIcons img{ width:20px; height:20px; border-radius:5px }
+  .tile__moreTxt{ gap:6px; flex:0 0 auto }
+  .tile__moreTxt b{ font-size:19px }
+  .tile__moreTxt span{ font-size:13.5px }
+  .tile__moreTxt svg{ width:15px; height:15px }
   .stats__grid{ grid-template-columns:repeat(2,1fr); gap:24px 0 }
   .stats__grid li:nth-child(3)::before{ display:none }
   .pstats{ gap:22px 20px }
@@ -1541,6 +1563,11 @@ body.is-locked .totop.weld{ opacity:0; pointer-events:none }
 /* =========================================================
    MOTION / PRINT
    ========================================================= */
+@media (max-width:380px){
+  /* the narrowest phones: three icons are enough to say "from all of these" */
+  .tile__moreIcons img:nth-child(n+4){ display:none }
+}
+
 @media (prefers-reduced-motion:reduce){
   html{ scroll-behavior:auto }
   .mond-fx{ display:none }

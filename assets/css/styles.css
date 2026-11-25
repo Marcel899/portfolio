@@ -355,10 +355,27 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   border:1px solid var(--line-2);
   box-shadow:0 16px 40px rgba(0,0,0,.55), 0 0 0 5px rgba(76,141,255,.11);
 }
+/* The name in a galaxy gradient: pale blue, violet, pink and cyan, the
+   colours of the moon scene and the avatar's sky, drifting slowly sideways.
+   Two layers, both clipped to the letters: a fixed white sheen on top so
+   the strokes keep a lit upper edge, and the colour band underneath, which
+   is a seamless tile (it starts and ends on the same colour) moved by
+   exactly one tile per loop, so there is never a jump. The tints are light
+   on purpose, to stay crisp against the night sky. */
 .hero__name{
   font-size:clamp(42px,7.6vw,88px); font-weight:700; letter-spacing:-.045em; line-height:1;
-  background:linear-gradient(180deg, #FFFFFF 14%, #A9B1A4 126%);
+  /* room for descenders and the drop shadow inside the clipped box */
+  padding:0 .04em .06em;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.12) 42%, rgba(255,255,255,0) 60%) 0 0 / 100% 100% no-repeat,
+    linear-gradient(90deg, #c4d4ff 0%, #a88bff 22%, #ff9fe0 44%, #8fe6ff 68%, #b6a4ff 84%, #c4d4ff 100%) 0% 50% / 200% 100% repeat-x;
   -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter:drop-shadow(0 2px 14px rgba(130,110,255,.22));
+  animation:galaxyDrift 14s linear infinite;
+}
+@keyframes galaxyDrift{
+  from{ background-position:0 0, 0% 50% }
+  to  { background-position:0 0, 200% 50% }
 }
 .hero__aka{
   margin-top:12px; font-family:var(--ff-m); font-size:12px;
@@ -798,15 +815,39 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   /* heavier than the source recipe's: this site's accents are lighter than
      the ones it was tuned against, and white on the yellow needs the help */
   text-shadow:0 1px 2px rgba(0,0,0,.55), 0 0 3px rgba(0,0,0,.35);
-  transition:transform .18s var(--ease), box-shadow .18s var(--ease);
+  cursor:default;
+  transition:transform .35s var(--glide), box-shadow .35s var(--glide), filter .35s var(--glide);
 }
 .roles li::before, .comm__roles li::before{ background-size:30px 30px }
 .roles li img, .comm__roles li img{
   flex:0 0 auto; width:18px; height:18px;
   filter:drop-shadow(0 1px 1px rgba(0,0,0,.45));
+  transition:transform .5s var(--spring);
 }
-.pinfo:hover .roles li, .comm__row:hover .comm__roles li{
-  transform:translateY(-1px);
+/* Hover: the badge lifts and brightens, picks up a soft glow in its own
+   colour, its icon tips and grows a touch, and a streak of light crosses
+   it once. The streak rides on the gloss layer (::after), which already
+   sits over the face and is clipped to it. */
+.roles li::after, .comm__roles li::after{
+  background:
+    linear-gradient(105deg, transparent 40%, rgba(255,255,255,.4) 50%, transparent 60%) 110% 0 / 250% 100% no-repeat,
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,0) 55%);
+}
+@media (hover:hover){
+  .roles li:hover, .comm__roles li:hover{
+    transform:translateY(-2px);
+    filter:brightness(1.08) saturate(1.05);
+    box-shadow:
+      0 6px 12px -4px rgba(0,0,0,.5),
+      0 0 12px -2px color-mix(in srgb, var(--pc) 70%, transparent),
+      inset 0 2px 0 rgba(255,255,255,.3),
+      inset 0 -2px 0 rgba(0,0,0,.18);
+  }
+  .roles li:hover::after, .comm__roles li:hover::after{
+    background-position:-10% 0, 0 0;
+    transition:opacity .15s, background-position .9s var(--glide);
+  }
+  .roles li:hover img, .comm__roles li:hover img{ transform:rotate(-12deg) scale(1.18) }
 }
 
 .pinfo__desc{

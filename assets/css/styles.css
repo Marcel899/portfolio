@@ -164,11 +164,23 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   position:relative; overflow:hidden; text-align:center;
   padding:clamp(60px,8vw,104px) 0 clamp(44px,5.5vw,72px);
 }
+/* Performance, the rule for everything in here: nothing animates inside a
+   blurred layer or under a mask. Any motion there makes the graphics card
+   redo the whole blur (or mask) of a hero-sized layer on every frame, which
+   is what made the hero lag. So the blurred sky and landscape are still and
+   get blurred once; what moves (the halo, the sparkles, the meteors) sits
+   outside them and moves only by transform and opacity. */
 .hero__bg{
   position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
   background:
     radial-gradient(58% 44% at 50% 26%, rgba(76,141,255,.15), transparent 70%),
     linear-gradient(180deg, #0B1428 0%, #070B15 58%, var(--bg) 100%);
+}
+/* the scene dissolves into the page at the bottom, so the hero has no
+   bottom edge (an overlay, not a mask: see above) */
+.hero__bg::after{
+  content:""; position:absolute; inset:0; z-index:6; pointer-events:none;
+  background:linear-gradient(180deg, rgba(7,9,16,0) 70%, rgba(7,10,19,.4) 89%, var(--bg) 99.5%);
 }
 /* ---------------------------------------------------------
    The moon scene
@@ -187,9 +199,6 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
     radial-gradient(42% 48% at 82% 16%, hsl(228 90% 72% / .16), transparent 70%),
     linear-gradient(180deg, hsl(234 55% 5%), hsl(236 45% 9%) 45%,
                     hsl(244 38% 17%) 78%, hsl(240 30% 22%));
-  /* dissolved downward into the page, so the hero has no bottom edge */
-  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 70%,rgba(0,0,0,.62) 89%,transparent 99.5%);
-  mask-image:linear-gradient(180deg,#000 0%,#000 70%,rgba(0,0,0,.62) 89%,transparent 99.5%);
 }
 /* Two things in one layer, both of which have to sit over the whole scene so
    that sky and ground are lit and darkened as one picture -- inside the
@@ -211,7 +220,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   content:""; position:absolute; inset:0; z-index:5;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size:160px 160px;
-  opacity:.035; mix-blend-mode:overlay;
+  opacity:.022;
 }
 
 /* ---- defocus ----
@@ -233,25 +242,22 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 /* oversized, so the slow drift below never walks an edge into frame */
 .mond-sterne{
   position:absolute; inset:-3%; width:106%; height:106%;
-  animation:mondZug 150s ease-in-out infinite alternate;
-  will-change:transform;
 }
 @keyframes mondZug{
   from{ transform:translate3d(-1.1%,  .5%, 0) }
   to  { transform:translate3d( 1.1%, -.5%, 0) }
 }
-.mond-funkeln{ animation:mondFunkeln 3.6s ease-in-out infinite alternate }
-@keyframes mondFunkeln{ from{ opacity:.15 } to{ opacity:1 } }
+/* the twinkling lives in .mond-fx, outside the blur */
 
 /* the few larger stars that carry a glow */
 .mond-fx{
   position:absolute; inset:0; z-index:1; overflow:hidden;
-  filter:blur(calc(var(--hero-blur) * .7));
 }
 .mond-fx > i{
   position:absolute; display:block; border-radius:50%;
-  background:hsl(230 100% 97%);
-  box-shadow:0 0 6px 1px hsl(228 100% 88% / .7);
+  /* soft already, so they need no blur layer: a pale core in a wide glow */
+  background:hsl(230 100% 97% / .85);
+  box-shadow:0 0 3px 1px hsl(230 100% 95% / .6), 0 0 10px 3px hsl(228 100% 86% / .38);
   animation-name:mondTwinkle; animation-timing-function:ease-in-out;
   animation-iteration-count:infinite;
   will-change:transform, opacity;
@@ -286,10 +292,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
   width:clamp(118px, 15vw, 240px); height:auto; aspect-ratio:1;
   overflow:visible;
 }
-.mond-hof{
-  transform-box:fill-box; transform-origin:center;
-  animation:mondHof 7s ease-in-out infinite alternate;
-}
+.mond-hof{ transform-box:fill-box; transform-origin:center }
 @keyframes mondHof{
   from{ opacity:.7; transform:scale(.96) }
   to  { opacity:1;  transform:scale(1.05) }
@@ -327,11 +330,7 @@ ul,ol,dl,dd{ margin:0; padding:0; list-style:none }
 }
 /* mist along the ridgeline, drifting -- the one thing in the landscape
    that moves, and what keeps the horizon from reading as a cut edge */
-.mond-saum{
-  animation:mondSaum 58s ease-in-out infinite alternate;
-  will-change:transform, opacity;
-}
-.mond-saum--nah{ animation-duration:79s; animation-direction:alternate-reverse }
+.mond-saum{ opacity:.86 }
 @keyframes mondSaum{
   from{ transform:translateX(-34px); opacity:.72 }
   to  { transform:translateX( 34px); opacity:1 }
